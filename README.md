@@ -23,13 +23,13 @@
 Satellite remote sensing from sun-synchronous optical constellations, such as the European Space Agency's (ESA) **Copernicus Sentinel-2**, provides planetary-scale multi-spectral observations crucial for environmental monitoring, precision agriculture, maritime intelligence, and urban development. However, orbital payload constraints, detector pixel pitch, and optical diffraction limits physically restrict the native ground sampling distance (GSD) of Sentinel-2 to **10 meters per pixel** for the primary Visible (B02 Blue, B03 Green, B04 Red) and Near-Infrared (B08 NIR) bands.
 
 In this work, we propose **HAT-Light**, a lightweight, continuous-scale **Hybrid Attention Transformer** specially engineered for 4-channel, 16-bit Bottom-Of-Atmosphere (BOA) satellite surface reflectance. HAT-Light synergistically integrates:
-1. **Window-based Multi-Head Self-Attention ($\text{W-MSA}$ & $\text{SW-MSA}$)** with Relative Position Bias ($B \in \mathbb{R}^{M^2 \times M^2}$) to model long-range structural dependencies across terrain biomes while reducing attention complexity by **$256\times$** compared to global attention.
-2. **Depthwise Convolutional Feed-Forward Networks ($\text{DW-FFN}$)** to inject translation-equivariant inductive biases essential for resolving fine geospatial lineaments.
+1. **Window-based Multi-Head Self-Attention (W-MSA & SW-MSA)** with Relative Position Bias ($B \in \mathbb{R}^{M^2 \times M^2}$) to model long-range structural dependencies across terrain biomes while reducing attention complexity by **256×** compared to global attention.
+2. **Depthwise Convolutional Feed-Forward Networks (DW-FFN)** to inject translation-equivariant inductive biases essential for resolving fine geospatial lineaments.
 3. A **Composite Multi-Task Radiometric Physical Loss Suite** ($\mathcal{L}_{\text{Charbonnier}} + 0.10\mathcal{L}_{\text{FFT}} + 0.05\mathcal{L}_{\text{grad}} + 0.02\mathcal{L}_{\text{SAM}}$) that bypasses the radiometric degradation and band limitations of ImageNet-pretrained perceptual models.
 4. An **Extreme-Efficiency Training Pipeline** that successfully converges the transformer backbone on a highly constrained consumer laptop GPU (**NVIDIA GeForce RTX 3050, 6GB VRAM**) utilizing mixed-precision FP16 Tensor Cores, gradient accumulation, and zero-allocation memory recycling without a single out-of-memory event.
 5. A **Curated Global Multi-Spectral Benchmark Dataset of 8,000 Patches** acquired across **16 diverse geographic Areas of Interest (AOIs)** via the Copernicus Data Space Ecosystem (CDSE) OData API, subjected to physical Gaussian Point Spread Function (PSF) degradation ($\sigma \in [0.6, 1.4]$) and rigorous quality filtering.
 
-Across an independent, held-out test distribution of **799 Sentinel-2 granules**, HAT-Light achieves an overall **40.18 dB PSNR** ($+6.75\text{ dB}$ gain over standard bicubic baseline) and **0.934 SSIM**, with an average CPU inference latency of **161.9 ms per patch** and GPU streaming throughput of **70+ FPS**, preserving spatial georeferencing in 16-bit GeoTIFF exports.
+Across an independent, held-out test distribution of **799 Sentinel-2 granules**, HAT-Light achieves an overall **40.18 dB PSNR** (+6.75 dB gain over standard bicubic baseline) and **0.934 SSIM**, with an average CPU inference latency of **161.9 ms per patch** and GPU streaming throughput of **70+ FPS**, preserving spatial georeferencing in 16-bit GeoTIFF exports.
 
 ---
 
@@ -104,7 +104,7 @@ $$
 \theta_{\text{diff}} \approx 1.22 \frac{\lambda}{D}
 $$
 
-where $\lambda$ represents observation wavelength ($490\text{ nm} - 842\text{ nm}$) and $D$ is the primary mirror aperture ($D \approx 0.15\text{ m}$ for Sentinel-2's Three-Mirror Anastigmat telescope). At an altitude of $786\text{ km}$, the diffraction-limited spot size physically prohibits resolving ground features smaller than $10\text{ meters}$.
+where $\lambda$ represents observation wavelength ($490\text{ nm} - 842\text{ nm}$) and $D$ is the primary mirror aperture ($D \approx 0.15\text{ m}$ for Sentinel-2's Three-Mirror Anastigmat telescope). At an altitude of $786\text{ km}$, the diffraction-limited spot size physically prohibits resolving ground features smaller than 10 meters.
 
 ```
                  Native 10m Ground Sample                      HAT-Light 4x Super-Resolved
@@ -132,17 +132,28 @@ where $\lambda$ represents observation wavelength ($490\text{ nm} - 842\text{ nm
 
 ### 2.1 Problem Formulation & Sensor Degradation Model
 
-Let $\mathbf{Y} \in \mathbb{R}^{4 \times H \times W}$ represent the latent ground-truth high-resolution 4-channel surface reflectance. The observed low-resolution satellite granule $\mathbf{X} \in \mathbb{R}^{4 \times \frac{H}{s} \times \frac{W}{s}}$ is physically modeled as:
+Let $\mathbf{Y} \in \mathbb{R}^{4 \times H \times W}$ represent the latent ground-truth high-resolution 4-channel surface reflectance. The observed low-resolution satellite granule $\mathbf{X} \in \mathbb{R}^{4 \times (H/s) \times (W/s)}$ is physically modeled as:
 
 $$
 \mathbf{X} = (\mathbf{Y} \circledast \mathbf{k}_{\text{PSF}}) \downarrow_s + \mathbf{n}
 $$
 
-where $\mathbf{k}_{\text{PSF}}$ denotes the continuous optical sensor Point Spread Function (parameterized as an anisotropic Gaussian kernel with $\sigma \in [0.6, 1.4]$), $\downarrow_s$ denotes spatial decimation by scaling factor $s = 4$, and $\mathbf{n} \sim \mathcal{N}(0, \sigma_n^2)$ represents detector read noise. The objective of HAT-Light is to find the parameterized mapping $\mathcal{F}_\Theta: \mathbf{X} \to \hat{\mathbf{Y}}$ such that $\hat{\mathbf{Y}} \approx \mathbf{Y}$.
+In this physical observation model:
+- $\mathbf{k}_{\text{PSF}}$ denotes the continuous optical sensor Point Spread Function, parameterized as an anisotropic Gaussian blur kernel with $\sigma \in [0.6, 1.4]$.
+- $\downarrow_s$ denotes spatial decimation by scaling factor $s = 4$.
+- $\mathbf{n} \sim \mathcal{N}(0, \sigma_n^2)$ represents detector readout noise.
 
-### 2.2 Window Multi-Head Self-Attention ($\text{W-MSA}$)
+The objective of HAT-Light is to find the parameterized neural mapping $\mathcal{F}_\Theta: \mathbf{X} \to \hat{\mathbf{Y}}$ such that:
 
-Given feature map $Z \in \mathbb{R}^{H \times W \times C}$, we partition $Z$ into non-overlapping windows of size $M \times M$ ($M = 8$). For each window, linear projections compute queries $Q$, keys $K$, and values $V$:
+$$
+\hat{\mathbf{Y}} \approx \mathbf{Y}
+$$
+
+---
+
+### 2.2 Window Multi-Head Self-Attention (W-MSA)
+
+Given feature map $Z \in \mathbb{R}^{H \times W \times C}$, we partition $Z$ into non-overlapping windows of size $M \times M$ with $M = 8$. For each window, linear projections compute queries $Q$, keys $K$, and values $V$:
 
 $$
 Q = XW_Q, \quad K = XW_K, \quad V = XW_V, \quad W_Q, W_K, W_V \in \mathbb{R}^{C \times d_k}
@@ -156,9 +167,11 @@ $$
 
 where $d_k = C / h = 96 / 8 = 12$, and $B \in \mathbb{R}^{M^2 \times M^2}$ represents the learnable **Relative Position Bias Matrix**. Because relative displacement along horizontal and vertical axes lies in $[-M+1, M-1]$, the bias is indexed from a compact parameter table $\hat{B} \in \mathbb{R}^{(2M-1) \times (2M-1)}$.
 
-### 2.3 Shifted Window Attention ($\text{SW-MSA}$) with Dynamic Batched Masking
+---
 
-To introduce inter-window connections across adjacent partitions without incurring global computational cost, consecutive blocks shift the partition grid by $(\lfloor \frac{M}{2} \rfloor, \lfloor \frac{M}{2} \rfloor) = (4, 4)$ pixels. Cyclic shifting brings sub-windows together; a self-attention masking mechanism sets non-adjacent token attention weights to $-\infty$ prior to the softmax computation:
+### 2.3 Shifted Window Attention (SW-MSA) with Dynamic Batched Masking
+
+To introduce inter-window connections across adjacent partitions without incurring global computational cost, consecutive blocks shift the partition grid by $(\lfloor M/2 \rfloor, \lfloor M/2 \rfloor) = (4, 4)$ pixels. Cyclic shifting brings sub-windows together; a self-attention masking mechanism sets non-adjacent token attention weights to $-\infty$ prior to the softmax computation:
 
 $$
 \text{Masked Attention}(Q, K, V) = \text{Softmax}\left(\frac{QK^T}{\sqrt{d_k}} + B + \mathcal{M}\right)V
@@ -166,15 +179,19 @@ $$
 
 where $\mathcal{M}_{i, j} = 0$ if tokens $i$ and $j$ belong to the same original contiguous sub-window, and $-\infty$ otherwise.
 
+---
+
 ### 2.4 Inductive Bias Restoration via Depthwise Convolutional FFN
 
-Pure self-attention lacks localized translational equivariance. HAT-Light addresses this by coupling self-attention with a **Depthwise Convolutional Feed-Forward Network ($\text{DW-FFN}$)**:
+Pure self-attention lacks localized translational equivariance. HAT-Light addresses this by coupling self-attention with a **Depthwise Convolutional Feed-Forward Network (DW-FFN)**:
 
 $$
 \text{DW-FFN}(X) = W_2 \cdot \text{GELU}\Big(\text{DW-Conv}_{3\times3}\big(W_1 \cdot X + b_1\big)\Big) + b_2
 $$
 
 where $\text{DW-Conv}_{3\times3}$ applies spatial filtering independently per channel ($3 \times 3 \times C = 864$ parameters), introducing local spatial smoothness while Transformer attention captures global non-local associations.
+
+---
 
 ### 2.5 Continuous Scale Conditioning via Sinusoidal Embedding & FiLM
 
@@ -184,12 +201,14 @@ $$
 \mathbf{e}(s) = \left[\sin\left(\frac{s}{10000^{2i/C}}\right), \cos\left(\frac{s}{10000^{2i/C}}\right)\right]_{i=0}^{C/2 - 1}
 $$
 
-The embedding passes through an MLP: $\mathbf{v}(s) = \mathbf{W}_2 \text{GELU}(\mathbf{W}_1 \mathbf{e}(s) + \mathbf{b}_1) + \mathbf{b}_2$.
-Feature-wise Linear Modulation ($\text{FiLM}$) parameters $[\gamma(s), \beta(s)]$ modulate intermediate activations:
+The embedding passes through an MLP: $\mathbf{v}(s) = \mathbf{W}_2 \text{GELU}(\mathbf{W}_1 \mathbf{e}(s) + \mathbf{b}_1) + \mathbf{b}_2$.  
+Feature-wise Linear Modulation (**FiLM**) parameters $[\gamma(s), \beta(s)]$ modulate intermediate activations:
 
 $$
 \text{FiLM}(X; s) = \gamma(s) \odot X + \beta(s)
 $$
+
+---
 
 ### 2.6 Global Residual Formulation & Zero-Initialization Guarantee
 
@@ -197,9 +216,20 @@ $$
 \hat{\mathbf{Y}} = \mathcal{I}_{\text{Bicubic}}(\mathbf{X}, s) + \mathcal{F}_{\Theta}(\mathbf{X}, s)
 $$
 
-**Theorem (Zero-Residual Initialization)**: Let the final convolutional projection layer $W_{\text{out}}, b_{\text{out}}$ of residual generator $\mathcal{F}_{\Theta}$ be initialized to zeros: $W_{\text{out}} = \mathbf{0}, b_{\text{out}} = \mathbf{0}$. Then at step $t=0$:
-$$\mathcal{F}_{\Theta}(\mathbf{X}, s) = \mathbf{0} \implies \hat{\mathbf{Y}} = \mathcal{I}_{\text{Bicubic}}(\mathbf{X}, s)$$
-**Corollary**: Training begins strictly from a proven lower bound ($\text{PSNR}_0 \approx 33.43\text{ dB}$). The network does not waste capacity reconstructing low-frequency energy; 100% of gradient updates optimize high-frequency structural recovery.
+**Theorem (Zero-Residual Initialization)**:  
+Let the final convolutional projection layer $(W_{\text{out}}, b_{\text{out}})$ of the residual generator $\mathcal{F}_{\Theta}$ be initialized to zeros:
+
+$$
+W_{\text{out}} = \mathbf{0}, \quad b_{\text{out}} = \mathbf{0}
+$$
+
+Then at step $t = 0$:
+
+$$
+\mathcal{F}_{\Theta}(\mathbf{X}, s) = \mathbf{0} \implies \hat{\mathbf{Y}} = \mathcal{I}_{\text{Bicubic}}(\mathbf{X}, s)
+$$
+
+**Corollary**: Training begins strictly from a proven lower bound ($\text{PSNR} \ge 33.43\text{ dB}$). The network does not waste capacity reconstructing low-frequency energy; 100% of gradient updates optimize high-frequency structural recovery.
 
 ---
 
@@ -223,26 +253,47 @@ $$
  high-albedo metal roofs  spectral harmonics                   and parcel boundaries     chromatic distortion
 ```
 
-### 3.1 Smooth Charbonnier Loss ($\mathcal{L}_{\text{Charbonnier}}$)
+### 3.1 Smooth Charbonnier Pixel Loss
+
+An outlier-resistant smooth $L_1$ formulation:
+
 $$
 \mathcal{L}_{\text{Charbonnier}}(\hat{\mathbf{Y}}, \mathbf{Y}) = \frac{1}{N} \sum_{i=1}^N \sqrt{(\hat{y}_i - y_i)^2 + \epsilon^2}, \quad \epsilon = 10^{-3}
 $$
-Unlike standard $L_2$ (MSE), which penalizes high-albedo reflections quadratically and blurs fine details, Charbonnier behaves linearly for errors $> \epsilon$, providing robust convergence on bright reflectors (aircraft metal, greenhouse glass).
 
-### 3.2 2D Real Fast Fourier Transform Spectral Loss ($\mathcal{L}_{\text{FFT}}$)
-$$
-\mathcal{L}_{\text{FFT}}(\hat{\mathbf{Y}}, \mathbf{Y}) = \frac{1}{N} \sum_{c=1}^4 \big\|\,|\mathcal{F}_{2D}(\hat{\mathbf{Y}}_c)| - |\mathcal{F}_{2D}(\mathbf{Y}_c)|\,\big\|_1
-$$
-where $\mathcal{F}_{2D}$ denotes the 2D real Fast Fourier Transform (`torch.fft.rfft2` with orthonormal normalization). Minimizing magnitude discrepancies in the 2D frequency spectrum enforces the recovery of high-frequency spatial harmonics that spatial $L_1$ averages out.
+Unlike standard $L_2$ (MSE), which penalizes high-albedo reflections quadratically and blurs fine details, Charbonnier maintains linear asymptotic gradients for errors exceeding $\epsilon$, providing robust convergence on bright reflectors (aircraft fuselages, greenhouse glass).
 
-### 3.3 Spatial Gradient Discontinuity Loss ($\mathcal{L}_{\text{gradient}}$)
+---
+
+### 3.2 2D Real Fast Fourier Transform (rFFT) Spectral Loss
+
+$$
+\mathcal{L}_{\text{FFT}}(\hat{\mathbf{Y}}, \mathbf{Y}) = \frac{1}{N} \sum_{c=1}^4 \left\| \, |\mathcal{F}_{2D}(\hat{\mathbf{Y}}_c)| - |\mathcal{F}_{2D}(\mathbf{Y}_c)| \, \right\|_1
+$$
+
+where $\mathcal{F}_{2D}$ denotes the 2D real Fast Fourier Transform (`torch.fft.rfft2` with orthonormal normalization). Minimizing magnitude discrepancies in the 2D frequency spectrum enforces the recovery of high-frequency spatial harmonics that spatial L1 loss averages out.
+
+---
+
+### 3.3 Spatial Gradient & Laplacian Edge Loss
+
+Computes first-order spatial gradients using 2D convolution filters along horizontal and vertical axes:
+
+$$
+\nabla_x = \begin{bmatrix} -1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix}, \quad \nabla_y = \begin{bmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix}
+$$
+
 $$
 \mathcal{L}_{\text{gradient}}(\hat{\mathbf{Y}}, \mathbf{Y}) = \frac{1}{N} \left( \|\nabla_x \hat{\mathbf{Y}} - \nabla_x \mathbf{Y}\|_1 + \|\nabla_y \hat{\mathbf{Y}} - \nabla_y \mathbf{Y}\|_1 \right)
 $$
-where $\nabla_x, \nabla_y$ represent Sobel horizontal and vertical convolution kernels, penalizing edge blurring along airport runway borders and shipping containers.
 
-### 3.4 Numerically Stable Convex Cosine SAM Loss ($\mathcal{L}_{\text{SAM}}$)
-Standard Spectral Angle Mapper uses $\arccos\left(\frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2}\right)$. Because the derivative $\frac{d}{dz}\arccos(z) = -\frac{1}{\sqrt{1-z^2}}$ exhibits a singularity at $z \to 1$, FP16 mixed-precision training suffers from infinite gradient spikes. We propose a **Convex Cosine SAM Formulation**:
+where the horizontal filter ($\nabla_x$) and vertical filter ($\nabla_y$) represent Sobel directional convolution kernels, penalizing structural edge blurring along airport runway borders and shipping containers.
+
+---
+
+### 3.4 Numerically Stable Convex Cosine SAM Loss
+
+Standard Spectral Angle Mapper uses $\arccos\left(\frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2}\right)$. Because the derivative $\frac{d}{dz}\arccos(z) = -\frac{1}{\sqrt{1-z^2}}$ exhibits a singularity as $z \to 1$, FP16 mixed-precision training suffers from infinite gradient spikes. We propose a **Convex Cosine SAM Formulation**:
 
 $$
 \mathcal{L}_{\text{SAM}}(\hat{\mathbf{Y}}, \mathbf{Y}) = 1 - \frac{1}{H W} \sum_{p=1}^{HW} \frac{\sum_{c=1}^4 \hat{y}_{c, p} \cdot y_{c, p}}{\sqrt{\sum_{c=1}^4 \hat{y}_{c, p}^2} \cdot \sqrt{\sum_{c=1}^4 y_{c, p}^2} + \epsilon_{\text{stab}}}
@@ -279,6 +330,8 @@ Training deep Transformer backbones for super-resolution typically requires ente
 | **Global ViT Attention** | $\mathcal{O}((HW)^2)$ | $2.68 \times 10^8$ ops / layer | $\approx 8.4\text{ GB}$ | ❌ **CUDA OOM on Batch Size 1** |
 | **HAT-Light Windowed Attention ($M=8$)** | $\mathcal{O}(M^2 HW)$ | **$1.05 \times 10^6$ ops / layer** | **$\approx 0.38\text{ GB}$** | ✅ **256x Reduction (Feasible)** |
 
+---
+
 ### 4.2 Native Mixed Precision (`torch.amp.autocast`) & Loss Scaling
 ```python
 with torch.amp.autocast(device_type="cuda", dtype=torch.float16):
@@ -291,12 +344,19 @@ self.scaler.scale(total_loss).backward()
 - Halved activation memory footprint from $4.9\text{ GB}$ to $2.45\text{ GB}$.
 - Dynamic `GradScaler` shifts gradient exponents by $2^{16}$, avoiding FP16 underflow on multi-spectral gradient tails.
 
+---
+
 ### 4.3 Virtual Macro-Batching via Gradient Accumulation
-Decoupled physical micro-batch size ($B_{\text{micro}} = 16$ or $24$) from mathematical optimization batch size ($B_{\text{eff}} = 32 \text{ or } 48$) over accumulation steps $K = 2$:
+
+Decoupled physical micro-batch size (`batch_size` = 16 or 24) from mathematical optimization batch size (`effective_batch_size` = 32 or 48) over accumulation steps $K = 2$:
+
 $$
 \mathbf{g}_t = \frac{1}{K} \sum_{k=1}^K \nabla_\Theta \mathcal{L}_k
 $$
-Stabilized AdamW second-moment estimates without exceeding physical VRAM capacity.
+
+This stabilizes AdamW second-moment estimates without exceeding the physical 6GB VRAM capacity.
+
+---
 
 ### 4.4 Zero-Allocation Memory Recycling
 `optimizer.zero_grad(set_to_none=True)` replaces gradient tensor allocations with `None` pointers rather than writing zero buffers, reclaiming $\approx 350\text{ MB}$ of VRAM per step.
@@ -324,6 +384,8 @@ To train and rigorously benchmark the model without spatial data leakage, the da
 - **Validation Split (10% / 800 patches)**: Used for evaluation at each epoch to dynamically supervise early stopping and save optimal model checkpoints.
 - **Held-Out FinalTest Split (10% / 799 patches)**: An isolated, non-overlapping test set reserved strictly for reporting final benchmark metrics.
 
+---
+
 ### 5.2 Targeted Global Areas of Interest (16 AOIs across 6 Biomes)
 
 To prevent geographic bias and ensure generalization across diverse terrain, satellite granules were retrieved across **16 globally distributed Areas of Interest (AOIs)** spanning six distinct operational categories:
@@ -347,6 +409,8 @@ To prevent geographic bias and ensure generalization across diverse terrain, sat
 | **Strategic Maritime** | Suez Canal | $30.585^\circ\text{N}, 32.560^\circ\text{E}$ | Narrow shipping waterway, desert embankment contours, vessel convoys |
 | **Strategic Maritime** | San Francisco Bay | $37.819^\circ\text{N}, -122.478^\circ\text{W}$ | Coastal bluffs, suspension bridges, maritime shipping terminal docks |
 
+---
+
 ### 5.3 Automated Copernicus Ingestion Protocol
 
 Scenes were ingested using the automated `pipeline/cdse_client.py` and `pipeline/build_dataset.py` modules:
@@ -358,16 +422,22 @@ Scenes were ingested using the automated `pipeline/cdse_client.py` and `pipeline
    - Band 2 (Blue, $\lambda_c = 490\text{ nm}$)
    - Band 8 (Near-Infrared, $\lambda_c = 842\text{ nm}$)
 
+---
+
 ### 5.4 Triple-Gate Quality Filtration Pipeline
 
 To guarantee that only information-rich patches enter the training corpus, the `pipeline/patch_extractor.py` engine subjects every candidate $128 \times 128$ window to three validation tests:
 1. **No-Data Rejection**: Rejects any patch containing satellite swath boundary pixels or nodata values ($\text{pixel} \le 0$).
 2. **Cloud Saturation Gate**: In Sentinel-2 L2A BOA reflectance, thick cloud tops saturate beyond $3,800$ (equivalent to $> 38\%$ physical surface reflectance). Any patch with significant pixel clusters $> 3,800$ across Visible channels is discarded.
 3. **Texture Variance Threshold**: To prevent the model from over-fitting to featureless open ocean or blank desert sand, the patch extractor computes the mean per-band standard deviation:
-   $$
-   \sigma_{\text{avg}} = \frac{1}{4} \sum_{c=1}^4 \text{std}(X_c)
-   $$
-   Patches with $\sigma_{\text{avg}} < 25.0$ are rejected, guaranteeing high informational entropy.
+
+$$
+\sigma_{\text{avg}} = \frac{1}{4} \sum_{c=1}^4 \text{std}(X_c)
+$$
+
+Patches with $\sigma_{\text{avg}} < 25.0$ are rejected, guaranteeing high informational entropy.
+
+---
 
 ### 5.5 Realistic Sensor Point Spread Function (PSF) Degradation
 
@@ -425,21 +495,29 @@ Quantitative evaluation was performed across **799 curated multi-spectral test g
 | **CPU Latency (Consumer Laptop)** | — | **161.9 ms / patch** | **Zero-GPU Ready** |
 | **GPU Streaming Latency (RTX 3050)**| — | **~14.2 ms / patch** | **Real-Time (70+ FPS)** |
 
+---
+
 ### 7.1 Visual Comparison Telemetry
 
 ![Evaluation Comparison](benchmarks/best_model_eval_epoch_100.png)
 *Figure 2: Visual comparison between Bicubic interpolation, Ground Truth, and HAT-Light output across True Color (RGB) and Color Infrared (CIR / False Color).*
+
+---
 
 ### 7.2 100-Epoch Training Telemetry Curves
 
 ![Training Curves](benchmarks/training_curves_epoch_100.png)
 *Figure 3: Complete 100-Epoch telemetry across Total Loss, L1, FFT, Gradient, Learning Rate, and Validation PSNR/SSIM curves.*
 
+---
+
 ### 7.3 Biophysical Index Validation (NDVI & NDWI)
+
 $$
 \text{NDVI} = \frac{\text{B08} - \text{B04}}{\text{B08} + \text{B04}}, \quad \text{NDWI} = \frac{\text{B03} - \text{B08}}{\text{B03} + \text{B08}}
 $$
-Because HAT-Light trains directly on 4-channel surface reflectance without RGB color-space reduction, NDVI calculated from super-resolved imagery matches ground truth with an $R^2 > 0.982$, validating its scientific utility for precision crop yield estimation and water boundary delineation.
+
+Because HAT-Light trains directly on 4-channel surface reflectance without RGB color-space reduction, NDVI calculated from super-resolved imagery correlates with ground truth at $R^2 \ge 0.982$, validating its scientific utility for precision crop yield estimation and water boundary delineation.
 
 ---
 
