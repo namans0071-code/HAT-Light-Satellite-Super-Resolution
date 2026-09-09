@@ -1,0 +1,38 @@
+{
+  "model_name": "HAT-Light (HAT-Sat-Pro)",
+  "architecture": "Lightweight Hybrid Attention Transformer with Continuous Scale Conditioning",
+  "parameters": 1420580,
+  "input_channels": 4,
+  "output_channels": 4,
+  "spectral_bands": [
+    "B04 (Red)",
+    "B03 (Green)",
+    "B02 (Blue)",
+    "B08 (NIR)"
+  ],
+  "training_epochs": 100,
+  "best_epoch": 82,
+  "training_losses": {
+    "loss_formulation": "L = L1 + 0.1 * L_FFT + 0.05 * L_gradient",
+    "epoch_100_total_loss": 0.0132,
+    "epoch_100_l1_loss": 0.0082,
+    "epoch_100_fft_loss": 0.0227,
+    "epoch_100_grad_loss": 0.0162
+  },
+  "test_dataset_evaluation": {
+    "dataset": "FinalTest (799 4-channel paired patches)",
+    "scale_factor": 4.0,
+    "mean_psnr_overall_db": 40.18,
+    "mean_psnr_rgb_db": 45.51,
+    "mean_psnr_nir_db": 37.76,
+    "mean_ssim": 0.9312,
+    "mean_mae": 0.01185,
+    "mean_total_loss": 0.01363,
+    "mean_l1_loss": 0.01185,
+    "mean_fft_loss": 0.00744,
+    "mean_gradient_loss": 0.0208,
+    "hardware": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+    "throughput_fps": 10.0,
+    "latency_ms_per_patch": 100.1
+  }
+}
