@@ -593,7 +593,7 @@ print(f"Output Shape: {sr_patch.shape}, Dtype: {sr_patch.dtype}")
 ## 📁 Repository Structure
 
 ```
-Final_Personal_Github/
+HAT-Light-Satellite-Super-Resolution/
 ├── app.py                         # 1-Click zero-config studio launcher
 ├── run_app.bat                    # Windows 1-click execution batch script
 ├── requirements.txt               # Consolidated dependencies (PyTorch, FastAPI, Rasterio)
@@ -647,15 +647,16 @@ Final_Personal_Github/
 This project is fully open source under the MIT License. **If you use, adapt, or reference this codebase, model architecture, pre-trained weights, or benchmark dataset in your own research, student projects, academic coursework, or applications, please provide credit by citing and linking back to this repository:**
 
 ### Quick Markdown Attribution
-> **Super-Resolution Model & Pipeline**: [HAT-Light: Hybrid Attention Transformers for Satellite Imagery](https://github.com/your-username/HAT-Light-Satellite-Super-Resolution)
+> **Super-Resolution Model & Pipeline**: [HAT-Light: Hybrid Attention Transformers for Satellite Imagery](https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution) by [Naman S.](https://github.com/namans0071-code)
 
 ### BibTeX Citation
 ```bibtex
 @misc{hatlight_satellite_sr_2026,
+  author={Naman S.},
   title={Hybrid Attention Transformers for 4-Channel Multi-Spectral Satellite Imagery Super-Resolution (HAT-Light)},
   year={2026},
   publisher={GitHub},
-  howpublished={\url{https://github.com/your-username/HAT-Light-Satellite-Super-Resolution}},
+  howpublished={\url{https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution}},
   note={Open-Source Satellite Super-Resolution for Sentinel-2 Optical and Near-Infrared Imagery}
 }
 ```
