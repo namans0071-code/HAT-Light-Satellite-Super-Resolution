@@ -62,13 +62,16 @@ To ensure geographic diversity and terrain generalization, granules were queried
 
 ## 🛰️ Sensor Optical Point Spread Function (PSF) Degradation
 
-Rather than using naive bicubic downsampling, the pipeline simulates realistic optical aperture diffraction:
+Rather than using naive bicubic downsampling alone, the pipeline simulates realistic optical aperture diffraction and detector sampling via a two-stage physical degradation model:
 
-$$\mathbf{X}_{\text{LR}} = \Big(\mathbf{X}_{\text{HR}} \circledast \mathbf{k}_{\text{PSF}}\Big) \downarrow_{s=4}$$
+1. **Optical Point Spread Function (PSF) Convolution**: Convolving each 4-channel patch depthwise with a $7 \times 7$ Gaussian blur kernel ($\sigma \in [0.6, 1.4]$) to model aperture diffraction, optical crosstalk, and atmospheric scattering.
+2. **Antialiased Bicubic Downsampling**: Decimating the blurred optical field by a factor of $4\times$ ($128 \times 128 \to 32 \times 32$) using antialiased bicubic interpolation (`F.interpolate(..., mode="bicubic", antialias=True)`) to accurately model detector spatial integration.
+
+$$\mathbf{X}_{\text{LR}} = \Big(\mathbf{X}_{\text{HR}} \circledast \mathbf{k}_{\text{PSF}}\Big) \downarrow_{\text{bicubic}, \, s=4}$$
 
 $$\mathbf{k}_{\text{PSF}}(u, v) = \frac{1}{2\pi \sigma^2} \exp\left(-\frac{u^2 + v^2}{2\sigma^2}\right), \quad \sigma \sim \mathcal{U}(0.6, 1.4)$$
 
-The $7 \times 7$ anisotropic Gaussian PSF kernel is convolved depthwise across each of the 4 spectral bands before $4\times$ decimation ($128 \times 128 \to 32 \times 32$), generating real-world sensor degradation dynamics.
+The $7 \times 7$ anisotropic Gaussian PSF kernel is convolved depthwise across each of the 4 spectral bands before $4\times$ antialiased bicubic downsampling ($128 \times 128 \to 32 \times 32$), generating real-world sensor degradation dynamics.
 
 ---
 
