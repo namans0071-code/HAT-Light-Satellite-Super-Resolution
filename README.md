@@ -25,7 +25,7 @@ Satellite remote sensing from sun-synchronous optical constellations, such as th
 In this work, we propose **HAT-Light**, a lightweight, continuous-scale **Hybrid Attention Transformer** specially engineered for 4-channel, 16-bit Bottom-Of-Atmosphere (BOA) satellite surface reflectance. HAT-Light synergistically integrates:
 1. **Window-based Multi-Head Self-Attention (W-MSA & SW-MSA)** with Relative Position Bias ($B \in \mathbb{R}^{M^2 \times M^2}$) to model long-range structural dependencies across terrain biomes while reducing attention complexity by **256×** compared to global attention.
 2. **Depthwise Convolutional Feed-Forward Networks (DW-FFN)** to inject translation-equivariant inductive biases essential for resolving fine geospatial lineaments.
-3. A **Composite Multi-Task Radiometric Physical Loss Suite** ($\mathcal{L}_{\text{Charbonnier}} + 0.10\mathcal{L}_{\text{FFT}} + 0.05\mathcal{L}_{\text{grad}} + 0.02\mathcal{L}_{\text{SAM}}$) that bypasses the radiometric degradation and band limitations of ImageNet-pretrained perceptual models.
+3. A **Composite Multi-Task Radiometric Physical Loss Suite** ($\mathcal{L}$<sub>Charbonnier</sub> + 0.10$\mathcal{L}$<sub>FFT</sub> + 0.05$\mathcal{L}$<sub>grad</sub> + 0.02$\mathcal{L}$<sub>SAM</sub>) that bypasses the radiometric degradation and band limitations of ImageNet-pretrained perceptual models.
 4. An **Extreme-Efficiency Training Pipeline** that successfully converges the transformer backbone on a highly constrained consumer laptop GPU (**NVIDIA GeForce RTX 3050, 6GB VRAM**) utilizing mixed-precision FP16 Tensor Cores, gradient accumulation, and zero-allocation memory recycling without a single out-of-memory event.
 5. A **Curated Global Multi-Spectral Benchmark Dataset of 8,000 Patches** acquired across **16 diverse geographic Areas of Interest (AOIs)** via the Copernicus Data Space Ecosystem (CDSE) OData API, subjected to physical Gaussian Point Spread Function (PSF) degradation ($\sigma \in [0.6, 1.4]$) and rigorous quality filtering.
 
@@ -201,7 +201,12 @@ $$
 \mathbf{e}(s) = \left[\sin\left(\frac{s}{10000^{2i/C}}\right), \cos\left(\frac{s}{10000^{2i/C}}\right)\right]_{i=0}^{C/2 - 1}
 $$
 
-The embedding passes through an MLP: $\mathbf{v}(s) = \mathbf{W}_2 \text{GELU}(\mathbf{W}_1 \mathbf{e}(s) + \mathbf{b}_1) + \mathbf{b}_2$.  
+The embedding passes through an MLP:
+
+$$
+\mathbf{v}(s) = \mathbf{W}_2 \text{GELU}(\mathbf{W}_1 \mathbf{e}(s) + \mathbf{b}_1) + \mathbf{b}_2
+$$
+
 Feature-wise Linear Modulation (**FiLM**) parameters $[\gamma(s), \beta(s)]$ modulate intermediate activations:
 
 $$
@@ -217,7 +222,7 @@ $$
 $$
 
 **Theorem (Zero-Residual Initialization)**:  
-Let the final convolutional projection layer $(W_{\text{out}}, b_{\text{out}})$ of the residual generator $\mathcal{F}_{\Theta}$ be initialized to zeros:
+Let the final convolutional projection layer ($W$<sub>out</sub>, $b$<sub>out</sub>) of the residual generator $\mathcal{F}_{\Theta}$ be initialized to zeros:
 
 $$
 W_{\text{out}} = \mathbf{0}, \quad b_{\text{out}} = \mathbf{0}
@@ -287,13 +292,19 @@ $$
 \mathcal{L}_{\text{gradient}}(\hat{\mathbf{Y}}, \mathbf{Y}) = \frac{1}{N} \left( \|\nabla_x \hat{\mathbf{Y}} - \nabla_x \mathbf{Y}\|_1 + \|\nabla_y \hat{\mathbf{Y}} - \nabla_y \mathbf{Y}\|_1 \right)
 $$
 
-where the horizontal filter ($\nabla_x$) and vertical filter ($\nabla_y$) represent Sobel directional convolution kernels, penalizing structural edge blurring along airport runway borders and shipping containers.
+where these directional Sobel convolution operators penalize structural edge blurring along airport runway borders and shipping containers.
 
 ---
 
 ### 3.4 Numerically Stable Convex Cosine SAM Loss
 
-Standard Spectral Angle Mapper uses $\arccos\left(\frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2}\right)$. Because the derivative $\frac{d}{dz}\arccos(z) = -\frac{1}{\sqrt{1-z^2}}$ exhibits a singularity as $z \to 1$, FP16 mixed-precision training suffers from infinite gradient spikes. We propose a **Convex Cosine SAM Formulation**:
+Standard Spectral Angle Mapper computes spectral angle via the inverse cosine:
+
+$$
+\theta(\mathbf{u}, \mathbf{v}) = \arccos\left(\frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2}\right)
+$$
+
+Because the derivative $\frac{d}{dz}\arccos(z) = -\frac{1}{\sqrt{1-z^2}}$ exhibits a singularity as $z \to 1$, FP16 mixed-precision training suffers from infinite gradient spikes. We propose a **Convex Cosine SAM Formulation**:
 
 $$
 \mathcal{L}_{\text{SAM}}(\hat{\mathbf{Y}}, \mathbf{Y}) = 1 - \frac{1}{H W} \sum_{p=1}^{HW} \frac{\sum_{c=1}^4 \hat{y}_{c, p} \cdot y_{c, p}}{\sqrt{\sum_{c=1}^4 \hat{y}_{c, p}^2} \cdot \sqrt{\sum_{c=1}^4 y_{c, p}^2} + \epsilon_{\text{stab}}}
