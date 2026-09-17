@@ -119,39 +119,51 @@ where $\lambda$ represents observation wavelength ($490\text{ nm} - 842\text{ nm
                    10m: Blurry Taxiway Blobs                      2.5m: Sharp Centerlines & Thresholds
 ```
 
-### Limitations of Prior Work:
+### 1.1 The Ground-Truth Paradox & Two-Phase Inversion Paradigm
+
+Supervised deep learning for single-image super-resolution traditionally assumes paired observation targets $(\mathbf{X}, \mathbf{Y})$ across low- and high-resolution domains. In spaceborne Earth observation, this requirement confronts the **Ground-Truth Paradox**:
+
+> **The Ground-Truth Paradox**: No satellite sensor currently in orbit simultaneously captures Sentinel-2 multi-spectral bands at 2.5m GSD. Consequently, real paired $(10\text{m}, 2.5\text{m})$ training targets physically do not exist in nature.
+
+To overcome this fundamental data absence without hallucinating unphysical spectral artifacts, HAT-Light establishes a **self-supervised surrogate transfer methodology**:
+
+```
+ ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                                 PHASE 1: SURROGATE INVERSION TRAINING                            │
+ │                                                                                                  │
+ │  Native 10m L2A Granules (HR)       Point Spread Function Blur & 4x Decimation                   │
+ │   Y_10m ∈ ℝ^{4 × 128 × 128}   ───►  X_40m = (Y_10m ⊛ k_PSF) ↓_4 ∈ ℝ^{4 × 32 × 32}                │
+ │               ▲                                                    │                             │
+ │               │                                                    ▼                             │
+ │               └────────── Multi-Task Radiometric Loss ◄─── HAT-Light Backbone                     │
+ │                             L_total(Ŷ_10m, Y_10m)          Ŷ_10m = F_Θ(X_40m, s=4)               │
+ └──────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                  │
+                                                  ▼ Parameter Transfer
+ ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │                               PHASE 2: OPERATIONAL FORWARD INFERENCE                             │
+ │                                                                                                  │
+ │  Unobserved Native 10m Input        Zero-Shot Scale-Conditioned Inference     Novel 2.5m Product │
+ │   X_10m ∈ ℝ^{4 × 128 × 128}   ───►        HAT-Light Backbone (F_Θ)        ───►  Ŷ_2.5m ∈ ℝ^{512}   │
+ │   (Real satellite observation)               (Scale s = 4.0)                 (Synthesized data)  │
+ └──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Operational Lifecycle Comparison:
+
+| Operational Phase | Input Observation | Ground-Truth Reference | Output Tensor | Mathematical Objective |
+| :--- | :--- | :--- | :--- | :--- |
+| **Phase 1: Inversion Training** | Synthetically degraded $\mathbf{X}$ ($40\text{m}$ patch, $32 \times 32$) | Native Sentinel-2 $\mathbf{Y}$ ($10\text{m}$ granule, $128 \times 128$) | Reconstructed $\hat{\mathbf{Y}}$ ($10\text{m}$ patch, $128 \times 128$) | Supervised optimization of optical deconvolution and non-local spatial attention (**40.18 dB PSNR** on held-out test distribution). |
+| **Phase 2: Operational Inference** | Real-world native $\mathbf{X}$ ($10\text{m}$ granule, $128 \times 128$) | *Unobserved in physical nature* | Super-resolved $\hat{\mathbf{Y}}$ ($2.5\text{m}$ reflectance, $512 \times 512$) | Feedforward deployment applying learned physical priors to synthesize **novel 2.5m GSD imagery** with preserved radiometry. |
+
+---
+
+### 1.2 Limitations of Prior Super-Resolution Paradigms
+
 1. **Classical Bicubic & Lanczos Interpolation**: Pure mathematical convolution functions assume local spatial continuity, smoothing away all high-frequency optical phase details and failing to reconstruct structural edges.
 2. **Convolutional Neural Networks (SRCNN, RCAN, EDSR)**: Rely on fixed, compact receptive fields. They cannot exploit long-range spatial self-similarity across large geospatial scenes (such as repetitive taxiway markings, agricultural center-pivot furrows, or parallel shipping containers).
 3. **Generative Adversarial Networks (SRGAN, ESRGAN)**: Introduce hallucinated, stochastic textures. In Earth observation, hallucinated high-frequency details violate physical conservation of energy and alter surface reflectance values, compromising radiometric downstream tasks like crop health modeling and water index extraction.
 4. **VGG / LPIPS Perceptual Losses**: Hardcoded strictly for 3-channel 8-bit dynamic range $[0, 255]$. Applying them to 4-channel 16-bit satellite data requires discarding the critical Near-Infrared (B08) band and quantizing physical surface reflectance, inducing severe spectral distortion.
-
----
-
-### 1.1 The Operational Super-Resolution Paradigm: From Surrogate Training to Novel Data Synthesis
-
-A fundamental dilemma in satellite remote sensing super-resolution is the **Ground-Truth Paradox**:
-> *No satellite in orbit captures simultaneous 2.5m multi-spectral Sentinel-2 bands. Paired 2.5m (HR) and 10m (LR) training data physically does not exist in nature.*
-
-To resolve this challenge, HAT-Light adopts a two-phase self-supervised surrogate transfer methodology:
-
-```
-[PHASE 1: SURROGATE INVERSION TRAINING]
-Native 10m Sentinel-2 Granule ──► [Sensor PSF Blur + 4x Decimation] ──► 40m Synthetic LR Patch (32x32)
-   (Verifiable Ground-Truth, 128x128)                                                 │
-                   ▲                                                                  ▼
-                   └───────────────── [HAT-Light Optimization] ◄──────────────────────┘
-                                (Learns Optical Deconvolution)
-
-[PHASE 2: OPERATIONAL FORWARD INFERENCE]
-Real-World Native 10m Satellite Imagery ──► [Trained HAT-Light Backbone] ──► Novel 2.5m Super-Resolved Surface Reflectance
-            (128x128 Input)                         (4x Scale)                     (512x512 Reconstructed Granule)
-                                                                           *Data never previously captured by sensor*
-```
-
-1. **Phase 1 — Inversion Learning ($40\text{m} \to 10\text{m}$)**:
-   We ingest native 10m Level-2A imagery as our verified ground truth ($128 \times 128$) and degrade it via physical optical Point Spread Function (PSF) convolution and $4\times$ spatial decimation into $40\text{m}$-equivalent patches ($32 \times 32$). The model learns to invert optical diffraction and atmospheric scattering under mathematical ground-truth supervision (reaching **40.18 dB PSNR** on the held-out test distribution).
-2. **Phase 2 — Zero-Shot Operational Deployment ($10\text{m} \to 2.5\text{m}$)**:
-   At production inference, the trained model is deployed directly on **raw, native 10m Sentinel-2 imagery**. Leveraging its learned scale-conditioned non-local priors and optical deconvolution filters, it synthesizes sub-pixel features ($128 \times 128 \to 512 \times 512$), unlocking unprecedented **2.5m Ground Sampling Distance (GSD)** surface reflectance that no existing Sentinel-2 instrument has ever captured.
 
 ---
 
