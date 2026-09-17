@@ -25,9 +25,10 @@ Satellite remote sensing from sun-synchronous optical constellations, such as th
 In this work, we propose **HAT-Light**, a lightweight, continuous-scale **Hybrid Attention Transformer** specially engineered for 4-channel, 16-bit Bottom-Of-Atmosphere (BOA) satellite surface reflectance. HAT-Light synergistically integrates:
 1. **Window-based Multi-Head Self-Attention (W-MSA & SW-MSA)** with Relative Position Bias ($B \in \mathbb{R}^{M^2 \times M^2}$) to model long-range structural dependencies across terrain biomes while reducing attention complexity by **256×** compared to global attention.
 2. **Depthwise Convolutional Feed-Forward Networks (DW-FFN)** to inject translation-equivariant inductive biases essential for resolving fine geospatial lineaments.
-3. A **Composite Multi-Task Radiometric Physical Loss Suite** (Charbonnier L1, 2D Spectral FFT, Spatial Gradient, and Cosine SAM) that bypasses the radiometric degradation and band limitations of ImageNet-pretrained perceptual models.
-4. An **Extreme-Efficiency Training Pipeline** that successfully converges the transformer backbone on a highly constrained consumer laptop GPU (**NVIDIA GeForce RTX 3050, 6GB VRAM**) utilizing mixed-precision FP16 Tensor Cores, gradient accumulation, and zero-allocation memory recycling without a single out-of-memory event.
-5. A **Curated Global Multi-Spectral Benchmark Dataset of 8,000 Patches** acquired across **16 diverse geographic Areas of Interest (AOIs)** via the Copernicus Data Space Ecosystem (CDSE) OData API, subjected to physical Gaussian Point Spread Function (PSF) degradation ($\sigma \in [0.6, 1.4]$) and rigorous quality filtering.
+3. **Continuous Scale FiLM Conditioning** to modulate scale dynamically with minimal parameter overhead ($< 0.04\%$ parameter footprint) via harmonic sinusoidal position embeddings and Feature-wise Linear Modulation.
+4. A **Composite Multi-Task Radiometric Physical Loss Suite** (Charbonnier L1, 2D Spectral FFT, Spatial Gradient, and Cosine SAM) that bypasses the radiometric degradation and band limitations of ImageNet-pretrained perceptual models.
+5. An **Extreme-Efficiency Training Pipeline** that successfully converges the transformer backbone on a highly constrained consumer laptop GPU (**NVIDIA GeForce RTX 3050, 6GB VRAM**) utilizing mixed-precision FP16 Tensor Cores, gradient accumulation, and zero-allocation memory recycling without a single out-of-memory event.
+6. A **Curated Global Multi-Spectral Benchmark Dataset of 8,000 Patches** acquired across **16 diverse geographic Areas of Interest (AOIs)** via the Copernicus Data Space Ecosystem (CDSE) OData API, subjected to physical Gaussian Point Spread Function (PSF) degradation ($\sigma \in [0.6, 1.4]$) and rigorous quality filtering.
 
 Across an independent, held-out test distribution of **799 Sentinel-2 granules**, HAT-Light achieves an overall **40.18 dB PSNR** (+6.75 dB gain over standard bicubic baseline) and **0.934 SSIM**, with an average CPU inference latency of **161.9 ms per patch** and GPU streaming throughput of **70+ FPS**, preserving spatial georeferencing in 16-bit GeoTIFF exports.
 
@@ -252,6 +253,8 @@ Feature-wise Linear Modulation (**FiLM**) parameters $[\gamma(s), \beta(s)]$ mod
 $$
 \text{FiLM}(X; s) = \gamma(s) \odot X + \beta(s)
 $$
+
+> **Continuous Scale FiLM Conditioning**: Modulates scale dynamically with minimal parameter overhead. The 2-layer sinusoidal projection MLP introduces fewer than 4,800 parameters ($< 0.04\%$ of the total network parameter footprint), allowing a single unified model checkpoint to execute continuous arbitrary-scale magnification without requiring separate trained models per scaling factor.
 
 ---
 
