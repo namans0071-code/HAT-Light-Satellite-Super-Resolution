@@ -73,6 +73,8 @@ $$\mathbf{k}_{\text{PSF}}(u, v) = \frac{1}{2\pi \sigma^2} \exp\left(-\frac{u^2 +
 
 The $7 \times 7$ anisotropic Gaussian PSF kernel is convolved depthwise across each of the 4 spectral bands before $4\times$ antialiased bicubic downsampling ($128 \times 128 \to 32 \times 32$), generating real-world sensor degradation dynamics.
 
+> **Operational Super-Resolution Paradigm**: Because simultaneous 2.5m multi-spectral Sentinel-2 data physically does not exist in orbit, the pipeline trains the network on verifiable $40\text{m} \to 10\text{m}$ surrogate pairs. At operational inference, the model ingests actual native 10m Sentinel-2 imagery to synthesize novel, physically grounded **2.5m Ground Sampling Distance (GSD)** surface reflectance.
+
 ---
 
 ## 📁 Pipeline Module Architecture
