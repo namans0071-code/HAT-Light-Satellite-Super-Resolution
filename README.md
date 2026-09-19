@@ -601,29 +601,35 @@ Quantitative evaluation was performed across **799 curated multi-spectral test g
 
 ---
 
-### 7.1 Visual Comparison Telemetry
+### 7.1 Multi-Biome Spatial Comparison (Sentinel-2 Test Split)
 
-![Evaluation Comparison](benchmarks/best_model_eval_epoch_100.png)
-*Figure 2: Visual comparison between Bicubic interpolation (preceded by a Gaussian Point Spread Function (PSF) blur to simulate real satellite sensor physics), Ground Truth, and HAT-Light output across True Color (RGB) and Color Infrared (CIR / False Color).*
-
----
-
-### 7.2 100-Epoch Training Telemetry Curves
-
-![Training Curves](benchmarks/training_curves_epoch_100.png)
-*Figure 3: Complete 100-Epoch telemetry across Total Loss, L1, FFT, Gradient, Learning Rate, and Validation PSNR/SSIM curves.*
+![Multi-Biome Spatial Comparison](paper/figures/fig1_visual_comparison.png)
+*Figure 2: Visual comparison across Airport, City Grid, Military Base, and Agricultural Farmland on the held-out Sentinel-2 test split ($10\text{m} \to 2.5\text{m}$, Scale $4\times$) against Bicubic, EDSR, RCAN, and SwinIR-Light baselines across True Color (RGB) and Color Infrared (CIR).*
 
 ---
 
-### 7.3 Biophysical Index Validation (NDVI & NDWI)
+### 7.2 1D Cross-Sectional Surface Reflectance Edge Profile
+
+![1D Edge Profile](paper/figures/fig2_transect_edge_profile.png)
+*Figure 3: 1D pixel intensity transect across an airport runway centerline threshold ($A \to B$). HAT-Light closely reproduces the steep, sharp step response of native high-resolution reference without artificial ringing or blur.*
+
+---
+
+### 7.3 Biophysical Index Validation (NDVI Fidelity)
 
 $$
 \text{NDVI} = \frac{\text{B08} - \text{B04}}{\text{B08} + \text{B04}}, \quad \text{NDWI} = \frac{\text{B03} - \text{B08}}{\text{B03} + \text{B08}}
 $$
 
-Because HAT-Light trains directly on 4-channel surface reflectance without RGB color-space reduction, NDVI calculated from super-resolved imagery correlates with ground truth at $R^2 \ge 0.982$, validating its scientific utility for precision crop yield estimation and water boundary delineation.
+![Biophysical Index Validation](paper/figures/fig3_ndvi_biophysical_fidelity.png)
+*Figure 4: Pixel-wise correlation between ground-truth and super-resolved Normalized Difference Vegetation Index (NDVI) across 4,000 agricultural pixels ($R^2 = 0.898$). Because HAT-Light trains directly on 4-channel surface reflectance without RGB color-space reduction, NDVI calculated from super-resolved imagery maintains high radiometric integrity for precision agricultural yield modeling.*
 
 ---
+
+### 7.4 Zero-Shot Cross-Sensor Generalization (Wald Protocol on USGS NAIP 2.5m)
+
+![Cross-Sensor Generalization](paper/figures/fig4_cross_sensor_eval.png)
+*Figure 5: Zero-shot cross-sensor evaluation under the Wald protocol across five operational categories (LAX Airport, Downtown LA Grid, MCAS Miramar Airbase, San Joaquin Farmland, Port of LA Harbor). Insets highlight reconstructed infrastructure lineaments.*
 
 <a id="tiling-engine"></a>
 ## 8. Seamless 2D Hann-Window Sliding Tiling Engine
