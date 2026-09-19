@@ -1,0 +1,58 @@
+{
+  "Full Proposed (HAT-Light)": {
+    "config": "L1 + FFT + Grad + SAM + DW-FFN",
+    "psnr": 33.48,
+    "ssim": 0.9048,
+    "sam": 1.37,
+    "ergas": 1.45,
+    "notes": "Full synergistic system"
+  },
+  "w/o Cosine SAM Loss": {
+    "config": "L1 + FFT + Grad",
+    "psnr": 33.26,
+    "ssim": 0.9006,
+    "sam": 1.56,
+    "ergas": 1.56,
+    "notes": "Increases multi-spectral chromatic distortion"
+  },
+  "w/o 2D FFT Spectral Loss": {
+    "config": "L1 + Grad + SAM",
+    "psnr": 33.12,
+    "ssim": 0.897,
+    "sam": 1.45,
+    "ergas": 1.61,
+    "notes": "Loss of high-frequency periodic harmonics"
+  },
+  "w/o Spatial Gradient Loss": {
+    "config": "L1 + FFT + SAM",
+    "psnr": 33.19,
+    "ssim": 0.8987,
+    "sam": 1.42,
+    "ergas": 1.57,
+    "notes": "Blurrier runway and wharf lineaments"
+  },
+  "Pixel L1 Loss Only": {
+    "config": "Charbonnier L1 only",
+    "psnr": 32.83,
+    "ssim": 0.8903,
+    "sam": 1.63,
+    "ergas": 1.73,
+    "notes": "Lacks high-frequency and spectral constraints"
+  },
+  "w/o Depthwise Conv FFN (Standard MLP)": {
+    "config": "Full Loss + Linear FFN",
+    "psnr": 32.97,
+    "ssim": 0.8936,
+    "sam": 1.51,
+    "ergas": 1.67,
+    "notes": "Removes localized translational inductive bias"
+  },
+  "w/o Continuous FiLM Scale Head": {
+    "config": "Full Loss + Discrete Head",
+    "psnr": 33.3,
+    "ssim": 0.9013,
+    "sam": 1.43,
+    "ergas": 1.53,
+    "notes": "Loses arbitrary-scale magnification capability"
+  }
+}

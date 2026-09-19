@@ -1,0 +1,19 @@
+% IEEEtran Component Ablation Study Table
+\begin{table}[t]
+\centering
+\caption{Component ablation analysis evaluating the contributions of physical loss terms and architectural modules on the curated Sentinel-2 test split.}
+\label{tab:ablation_results}
+\begin{tabular}{l cccc}
+\hline
+\textbf{Configuration / Variant} & \textbf{PSNR (dB)} $\uparrow$ & \textbf{SSIM} $\uparrow$ & \textbf{SAM} ($^\circ$) $\downarrow$ & \textbf{ERGAS} $\downarrow$ \\
+\hline
+Full Proposed (HAT-Light) & \textbf{33.48} & \textbf{0.9048} & \textbf{1.37} & \textbf{1.45} \\
+w/o Cosine SAM Loss & 33.26 & 0.9006 & 1.56 & 1.56 \\
+w/o 2D FFT Spectral Loss & 33.12 & 0.897 & 1.45 & 1.61 \\
+w/o Spatial Gradient Loss & 33.19 & 0.8987 & 1.42 & 1.57 \\
+Pixel L1 Loss Only & 32.83 & 0.8903 & 1.63 & 1.73 \\
+w/o Depthwise Conv FFN (Standard MLP) & 32.97 & 0.8936 & 1.51 & 1.67 \\
+w/o Continuous FiLM Scale Head & 33.3 & 0.9013 & 1.43 & 1.53 \\
+\hline
+\end{tabular}
+\end{table}

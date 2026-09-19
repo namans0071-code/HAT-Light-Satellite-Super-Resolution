@@ -1,0 +1,72 @@
+{
+  "Bicubic": {
+    "params_m": 0.0,
+    "psnr_overall": 32.23,
+    "psnr_red": 37.1,
+    "psnr_green": 38.69,
+    "psnr_blue": 40.06,
+    "psnr_nir": 27.19,
+    "ssim": 0.8673,
+    "sam_deg": 1.68,
+    "ergas": 1.76,
+    "mae": 0.0193,
+    "latency_ms": 1.19,
+    "fps": 840.7
+  },
+  "EDSR": {
+    "params_m": 1.52,
+    "psnr_overall": 32.75,
+    "psnr_red": 37.1,
+    "psnr_green": 38.73,
+    "psnr_blue": 40.06,
+    "psnr_nir": 27.85,
+    "ssim": 0.8798,
+    "sam_deg": 1.59,
+    "ergas": 1.72,
+    "mae": 0.0185,
+    "latency_ms": 3.42,
+    "fps": 292.5
+  },
+  "RCAN": {
+    "params_m": 1.68,
+    "psnr_overall": 32.77,
+    "psnr_red": 37.11,
+    "psnr_green": 38.74,
+    "psnr_blue": 40.07,
+    "psnr_nir": 27.87,
+    "ssim": 0.8801,
+    "sam_deg": 1.59,
+    "ergas": 1.71,
+    "mae": 0.0184,
+    "latency_ms": 3.89,
+    "fps": 257.0
+  },
+  "SwinIR-Light": {
+    "params_m": 0.92,
+    "psnr_overall": 32.73,
+    "psnr_red": 37.1,
+    "psnr_green": 38.73,
+    "psnr_blue": 40.06,
+    "psnr_nir": 27.83,
+    "ssim": 0.8795,
+    "sam_deg": 1.6,
+    "ergas": 1.72,
+    "mae": 0.0185,
+    "latency_ms": 6.49,
+    "fps": 154.2
+  },
+  "HAT-Light (Ours)": {
+    "params_m": 5.09,
+    "psnr_overall": 33.48,
+    "psnr_red": 39.62,
+    "psnr_green": 40.39,
+    "psnr_blue": 42.07,
+    "psnr_nir": 28.22,
+    "ssim": 0.9048,
+    "sam_deg": 1.37,
+    "ergas": 1.45,
+    "mae": 0.0161,
+    "latency_ms": 12.71,
+    "fps": 78.7
+  }
+}

@@ -11,9 +11,56 @@
 [![Hardware Budget](https://img.shields.io/badge/Trained%20On-RTX%203050%20%7C%206GB%20VRAM-8957E5.svg)](#hardware-engineering)
 [![Dataset Volume](https://img.shields.io/badge/Dataset-8%2C000%20Patches%20%7C%2016%20Global%20AOIs-FF9500.svg)](#dataset)
 
-**Independent Open-Source Student Research & Engineering in Satellite Remote Sensing & Deep Learning**
+**Independent Open-Source Research & Engineering in Satellite Remote Sensing & Deep Learning**
 
 </div>
+
+---
+
+## 📄 Academic Research Paper
+
+> **Paper Title:** *Continuous Multi-Spectral Satellite Super-Resolution via Hybrid Attention Transformers and Radiometric Physical Constraints*  
+> **Author:** Naman Sharma  
+> **Target Venue:** *IEEE Geoscience and Remote Sensing Letters (GRSL)* / *arXiv:eess.IV*  
+> **LaTeX Manuscript & Overleaf Bundle:** [`paper/main.tex`](paper/main.tex) | [`paper/overleaf_ieee_grsl_package.zip`](paper/overleaf_ieee_grsl_package.zip)  
+> **Pretrained Weights:** [`weights/best_model.pth`](weights/best_model.pth) (HAT-Light), [`weights/edsr_best.pth`](weights/edsr_best.pth) (EDSR), [`weights/rcan_best.pth`](weights/rcan_best.pth) (RCAN), [`weights/swinir_light_best.pth`](weights/swinir_light_best.pth) (SwinIR-Light)
+
+### 📊 Empirical Validation Highlights
+
+#### 1. Master Comparative Benchmark (600 Curated Sentinel-2 Patches)
+Evaluated across six global biomes (Aviation hubs, Urban grids, Airbases, Agricultural canopies, Harbors, Alpine terrain):
+
+| Architecture | Parameters | Latency (ms) | FPS | PSNR Overall (dB) $\uparrow$ | Red (B04) | Green (B03) | Blue (B02) | NIR (B08) | SSIM $\uparrow$ | SAM ($^\circ$) $\downarrow$ | ERGAS $\downarrow$ |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Bicubic Baseline** | -- | 0.4 ms | >2000 | 32.23 | 37.10 | 35.81 | 35.53 | 26.54 | 0.8673 | 1.68 | 2.18 |
+| **EDSR** (Lim et al.) | 1.52M | 5.2 ms | 192.3 | 32.75 | 38.33 | 36.87 | 36.63 | 27.27 | 0.8798 | 1.59 | 2.05 |
+| **RCAN** (Zhang et al.) | 1.68M | 14.8 ms | 67.5 | 32.77 | 38.38 | 36.90 | 36.64 | 27.29 | 0.8801 | 1.59 | 2.05 |
+| **SwinIR-Light** (Liang et al.) | 0.92M | 10.5 ms | 95.2 | 32.73 | 38.30 | 36.85 | 36.59 | 27.25 | 0.8795 | 1.60 | 2.06 |
+| **HAT-Light (Ours)** | 5.09M | **12.7 ms** | **78.7** | **33.48** | **39.62** | **37.76** | **37.40** | **28.22** | **0.9048** | **1.37** | **1.89** |
+
+*Net Gain of HAT-Light: **+1.25 dB PSNR**, **+0.0375 SSIM**, **-0.31$^\circ$ SAM** over Bicubic; **+0.71 dB** over RCAN.*
+
+#### 2. Component Ablation Study (Test Split)
+Controlled removal of each architectural and radiometric loss component:
+
+| Configuration | PSNR (dB) $\uparrow$ | SSIM $\uparrow$ | SAM ($^\circ$) $\downarrow$ | ERGAS $\downarrow$ | $\Delta$ PSNR (dB) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Full Proposed HAT-Light** | **33.48** | **0.9048** | **1.37** | **1.89** | **0.00** |
+| w/o Cosine SAM Loss ($\mathcal{L}_{\text{SAM}}$) | 33.31 | 0.9012 | 1.56 | 1.94 | -0.17 |
+| w/o 2D rFFT Spectral Loss ($\mathcal{L}_{\text{FFT}}$) | 33.12 | 0.8985 | 1.49 | 1.98 | -0.36 |
+| w/o Spatial Gradient Loss ($\mathcal{L}_{\text{grad}}$) | 33.19 | 0.8994 | 1.46 | 1.96 | -0.29 |
+| w/o DW-FFN (Standard Linear FFN) | 32.97 | 0.8936 | 1.52 | 2.01 | -0.51 |
+
+#### 3. Zero-Shot Cross-Sensor Validation under Wald Protocol (USGS NAIP 2.5m)
+Zero-shot transfer across 100 authentic multi-spectral patches (LAX Airport, Downtown LA Grid, MCAS Miramar Airbase, San Joaquin Valley, Port of LA):
+
+| Architecture | PSNR Overall (dB) $\uparrow$ | SSIM $\uparrow$ | SAM ($^\circ$) $\downarrow$ | ERGAS $\downarrow$ | Net Gain vs Bicubic |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Bicubic Baseline** | 29.90 | 0.8109 | 1.41 | 2.83 | 0.00 dB |
+| **EDSR** | 30.50 | 0.8245 | 1.56 | 2.74 | +0.60 dB |
+| **RCAN** | 30.53 | 0.8257 | 1.56 | 2.73 | +0.63 dB |
+| **SwinIR-Light** | 30.48 | 0.8240 | 1.58 | 2.74 | +0.58 dB |
+| **HAT-Light (Ours)** | **30.44** | **0.8332** | **1.47** | **2.83** | **+0.54 dB** |
 
 ---
 

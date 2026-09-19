@@ -1,0 +1,57 @@
+{
+  "Bicubic Baseline": {
+    "psnr_overall": 29.9,
+    "psnr_red": 33.82,
+    "psnr_green": 34.31,
+    "psnr_blue": 35.4,
+    "psnr_nir": 25.23,
+    "ssim": 0.8109,
+    "sam_deg": 1.41,
+    "ergas": 2.83,
+    "mae": 0.03
+  },
+  "EDSR": {
+    "psnr_overall": 30.5,
+    "psnr_red": 33.84,
+    "psnr_green": 34.5,
+    "psnr_blue": 35.44,
+    "psnr_nir": 26.02,
+    "ssim": 0.8245,
+    "sam_deg": 1.56,
+    "ergas": 2.74,
+    "mae": 0.0285
+  },
+  "RCAN": {
+    "psnr_overall": 30.53,
+    "psnr_red": 33.87,
+    "psnr_green": 34.53,
+    "psnr_blue": 35.46,
+    "psnr_nir": 26.06,
+    "ssim": 0.8257,
+    "sam_deg": 1.56,
+    "ergas": 2.73,
+    "mae": 0.0284
+  },
+  "SwinIR-Light": {
+    "psnr_overall": 30.48,
+    "psnr_red": 33.84,
+    "psnr_green": 34.49,
+    "psnr_blue": 35.43,
+    "psnr_nir": 26.01,
+    "ssim": 0.824,
+    "sam_deg": 1.58,
+    "ergas": 2.74,
+    "mae": 0.0285
+  },
+  "HAT-Light (Ours)": {
+    "psnr_overall": 30.44,
+    "psnr_red": 33.58,
+    "psnr_green": 34.29,
+    "psnr_blue": 35.27,
+    "psnr_nir": 26.04,
+    "ssim": 0.8332,
+    "sam_deg": 1.47,
+    "ergas": 2.83,
+    "mae": 0.0277
+  }
+}

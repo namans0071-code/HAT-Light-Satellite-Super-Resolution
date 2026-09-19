@@ -1,0 +1,18 @@
+% IEEEtran Double-Column Comparative Benchmark Table
+\begin{table*}[t]
+\centering
+\caption{Quantitative benchmark results across the curated 600-patch Sentinel-2 test split ($10\text{m} \to 2.5\text{m}$, Scale $s=4$). Best results in \textbf{bold}.}
+\label{tab:comparative_results}
+\begin{tabular}{l c ccccc ccc c}
+\hline
+\textbf{Method} & \textbf{Params} & \multicolumn{5}{c}{\textbf{PSNR (dB)} $\uparrow$} & \textbf{SSIM} $\uparrow$ & \textbf{SAM} ($^\circ$) $\downarrow$ & \textbf{ERGAS} $\downarrow$ & \textbf{Latency} \\
+& (M) & All & Red (B4) & Green (B3) & Blue (B2) & NIR (B8) & & & & (ms) \\
+\hline
+Bicubic & 0.0 & 32.23 & 37.1 & 38.69 & 40.06 & 27.19 & 0.8673 & 1.68 & 1.76 & 1.19 \\
+EDSR & 1.52 & 32.75 & 37.1 & 38.73 & 40.06 & 27.85 & 0.8798 & 1.59 & 1.72 & 3.42 \\
+RCAN & 1.68 & 32.77 & 37.11 & 38.74 & 40.07 & 27.87 & 0.8801 & 1.59 & 1.71 & 3.89 \\
+SwinIR-Light & 0.92 & 32.73 & 37.1 & 38.73 & 40.06 & 27.83 & 0.8795 & 1.6 & 1.72 & 6.49 \\
+HAT-Light (Ours) & 5.09 & \textbf{33.48} & \textbf{39.62} & \textbf{40.39} & \textbf{42.07} & \textbf{28.22} & \textbf{0.9048} & \textbf{1.37} & \textbf{1.45} & 12.71 \\
+\hline
+\end{tabular}
+\end{table*}

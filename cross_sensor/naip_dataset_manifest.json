@@ -1,0 +1,1302 @@
+{
+  "patch_airport_runway_001.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4965,
+      11179,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 24.35375213623047
+  },
+  "patch_airport_runway_002.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4965,
+      10700,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 29.380130767822266
+  },
+  "patch_airport_runway_003.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4486,
+      11179,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 24.380836486816406
+  },
+  "patch_airport_runway_004.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4486,
+      10700,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 29.573701858520508
+  },
+  "patch_airport_runway_005.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      5444,
+      11179,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 22.162559509277344
+  },
+  "patch_airport_runway_006.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4965,
+      11658,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 19.78464698791504
+  },
+  "patch_airport_runway_007.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      5444,
+      10700,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 26.792316436767578
+  },
+  "patch_airport_runway_008.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4486,
+      11658,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 21.272199630737305
+  },
+  "patch_airport_runway_009.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4965,
+      10221,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 30.734479904174805
+  },
+  "patch_airport_runway_010.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4007,
+      11179,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 21.814273834228516
+  },
+  "patch_airport_runway_011.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4486,
+      10221,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 28.58251190185547
+  },
+  "patch_airport_runway_012.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4007,
+      10700,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 23.68586540222168
+  },
+  "patch_airport_runway_013.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      5444,
+      11658,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 20.714033126831055
+  },
+  "patch_airport_runway_014.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      5444,
+      10221,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 30.727861404418945
+  },
+  "patch_airport_runway_015.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4007,
+      11658,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 17.220420837402344
+  },
+  "patch_airport_runway_016.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      5923,
+      11179,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 18.965158462524414
+  },
+  "patch_airport_runway_017.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4007,
+      10221,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 23.466711044311523
+  },
+  "patch_airport_runway_018.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      5923,
+      10700,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 24.07052230834961
+  },
+  "patch_airport_runway_019.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      5923,
+      11658,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 20.343780517578125
+  },
+  "patch_airport_runway_020.npy": {
+    "category": "airport_runway",
+    "scene_id": "ca_m_3311805_ne_11_060_20220511",
+    "native_window": [
+      4965,
+      9742,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 18.56070899963379
+  },
+  "patch_urban_grid_001.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      9448,
+      3353,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 44.10871887207031
+  },
+  "patch_urban_grid_002.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      9448,
+      2874,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 42.8751220703125
+  },
+  "patch_urban_grid_003.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8969,
+      3353,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 44.69184875488281
+  },
+  "patch_urban_grid_004.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8969,
+      2874,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 47.11643600463867
+  },
+  "patch_urban_grid_005.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      9448,
+      3832,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 41.782630920410156
+  },
+  "patch_urban_grid_006.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      9448,
+      2395,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 42.28404235839844
+  },
+  "patch_urban_grid_007.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8969,
+      3832,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 43.36494064331055
+  },
+  "patch_urban_grid_008.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8969,
+      2395,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 48.58903121948242
+  },
+  "patch_urban_grid_009.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8490,
+      3353,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 44.65370178222656
+  },
+  "patch_urban_grid_010.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8490,
+      2874,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 44.261905670166016
+  },
+  "patch_urban_grid_011.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8490,
+      3832,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 43.114803314208984
+  },
+  "patch_urban_grid_012.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8490,
+      2395,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 44.57377624511719
+  },
+  "patch_urban_grid_013.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      9448,
+      4311,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 36.30647277832031
+  },
+  "patch_urban_grid_014.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      9448,
+      1916,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 42.8878173828125
+  },
+  "patch_urban_grid_015.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8969,
+      4311,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 39.91313171386719
+  },
+  "patch_urban_grid_016.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8969,
+      1916,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 44.03403854370117
+  },
+  "patch_urban_grid_017.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8011,
+      3353,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 44.57559585571289
+  },
+  "patch_urban_grid_018.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8011,
+      2874,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 45.82682800292969
+  },
+  "patch_urban_grid_019.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8490,
+      4311,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 37.319610595703125
+  },
+  "patch_urban_grid_020.npy": {
+    "category": "urban_grid",
+    "scene_id": "ca_m_3411862_se_11_060_20220511",
+    "native_window": [
+      8490,
+      1916,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 40.86444854736328
+  },
+  "patch_military_airbase_001.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      7527,
+      1437,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 29.50933265686035
+  },
+  "patch_military_airbase_002.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      7048,
+      1437,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 25.13737678527832
+  },
+  "patch_military_airbase_003.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      7527,
+      1916,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 22.053239822387695
+  },
+  "patch_military_airbase_004.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      7048,
+      1916,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 17.28694725036621
+  },
+  "patch_military_airbase_005.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      7527,
+      958,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 23.65359115600586
+  },
+  "patch_military_airbase_006.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      8006,
+      1437,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 29.88530921936035
+  },
+  "patch_military_airbase_007.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      7048,
+      958,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 22.07833480834961
+  },
+  "patch_military_airbase_008.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      8006,
+      1916,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 17.296409606933594
+  },
+  "patch_military_airbase_009.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      6569,
+      1437,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 21.286706924438477
+  },
+  "patch_military_airbase_010.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      8006,
+      958,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 23.716623306274414
+  },
+  "patch_military_airbase_011.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      7527,
+      2395,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 12.03874397277832
+  },
+  "patch_military_airbase_012.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      6569,
+      1916,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 19.121307373046875
+  },
+  "patch_military_airbase_013.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      7048,
+      2395,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 14.71016788482666
+  },
+  "patch_military_airbase_014.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      6569,
+      958,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 25.084064483642578
+  },
+  "patch_military_airbase_015.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      7527,
+      479,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 19.561010360717773
+  },
+  "patch_military_airbase_016.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      7048,
+      479,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 14.993430137634277
+  },
+  "patch_military_airbase_017.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      8485,
+      1437,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 23.700695037841797
+  },
+  "patch_military_airbase_018.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      8485,
+      1916,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 18.349891662597656
+  },
+  "patch_military_airbase_019.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      8006,
+      479,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 23.30261993408203
+  },
+  "patch_military_airbase_020.npy": {
+    "category": "military_airbase",
+    "scene_id": "ca_m_3211715_ne_11_060_20220425",
+    "native_window": [
+      8485,
+      958,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 24.475435256958008
+  },
+  "patch_agriculture_canopy_001.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      4350,
+      7537,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 40.326683044433594
+  },
+  "patch_agriculture_canopy_002.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      4350,
+      7058,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 12.615941047668457
+  },
+  "patch_agriculture_canopy_003.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      3871,
+      7537,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 30.026195526123047
+  },
+  "patch_agriculture_canopy_004.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      3871,
+      7058,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 24.284507751464844
+  },
+  "patch_agriculture_canopy_005.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      4829,
+      7537,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 38.73738098144531
+  },
+  "patch_agriculture_canopy_006.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      4350,
+      8016,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 16.111215591430664
+  },
+  "patch_agriculture_canopy_007.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      4829,
+      7058,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 29.40052032470703
+  },
+  "patch_agriculture_canopy_008.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      3871,
+      8016,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 26.132747650146484
+  },
+  "patch_agriculture_canopy_009.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      4350,
+      6579,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 19.568195343017578
+  },
+  "patch_agriculture_canopy_010.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      3392,
+      7537,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 35.78968811035156
+  },
+  "patch_agriculture_canopy_011.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      3871,
+      6579,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 38.147216796875
+  },
+  "patch_agriculture_canopy_012.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      3392,
+      7058,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 23.744186401367188
+  },
+  "patch_agriculture_canopy_013.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      4829,
+      8016,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 31.165203094482422
+  },
+  "patch_agriculture_canopy_014.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      4829,
+      6579,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 35.268917083740234
+  },
+  "patch_agriculture_canopy_015.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      3392,
+      8016,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 33.477630615234375
+  },
+  "patch_agriculture_canopy_016.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      5308,
+      7537,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 21.37131690979004
+  },
+  "patch_agriculture_canopy_017.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      4350,
+      8495,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 37.40333938598633
+  },
+  "patch_agriculture_canopy_018.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      3392,
+      6579,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 33.365272521972656
+  },
+  "patch_agriculture_canopy_019.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      5308,
+      7058,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 29.019393920898438
+  },
+  "patch_agriculture_canopy_020.npy": {
+    "category": "agriculture_canopy",
+    "scene_id": "ca_m_3611918_sw_11_060_20220620",
+    "native_window": [
+      3871,
+      8495,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 20.695112228393555
+  },
+  "patch_harbor_coastal_001.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      8687,
+      5213,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 25.783950805664062
+  },
+  "patch_harbor_coastal_002.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      8687,
+      4734,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 26.989639282226562
+  },
+  "patch_harbor_coastal_003.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      8208,
+      5213,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 37.17841339111328
+  },
+  "patch_harbor_coastal_004.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      8208,
+      4734,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 39.71247863769531
+  },
+  "patch_harbor_coastal_005.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      9166,
+      5213,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 19.5828914642334
+  },
+  "patch_harbor_coastal_006.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      8687,
+      5692,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 29.273193359375
+  },
+  "patch_harbor_coastal_007.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      9166,
+      4734,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 22.606224060058594
+  },
+  "patch_harbor_coastal_008.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      8208,
+      5692,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 24.630041122436523
+  },
+  "patch_harbor_coastal_009.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      8687,
+      4255,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 33.43348693847656
+  },
+  "patch_harbor_coastal_010.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      7729,
+      5213,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 14.036296844482422
+  },
+  "patch_harbor_coastal_011.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      8208,
+      4255,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 19.691482543945312
+  },
+  "patch_harbor_coastal_012.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      9166,
+      5692,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 23.31412696838379
+  },
+  "patch_harbor_coastal_013.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      9166,
+      4255,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 25.115575790405273
+  },
+  "patch_harbor_coastal_014.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      9645,
+      5213,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 34.480690002441406
+  },
+  "patch_harbor_coastal_015.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      8687,
+      6171,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 35.242828369140625
+  },
+  "patch_harbor_coastal_016.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      9645,
+      4734,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 18.811439514160156
+  },
+  "patch_harbor_coastal_017.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      9645,
+      5692,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 21.153724670410156
+  },
+  "patch_harbor_coastal_018.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      9166,
+      6171,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 23.362279891967773
+  },
+  "patch_harbor_coastal_019.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      8687,
+      3776,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 27.02840805053711
+  },
+  "patch_harbor_coastal_020.npy": {
+    "category": "harbor_coastal",
+    "scene_id": "ca_m_3311822_ne_11_060_20220511",
+    "native_window": [
+      7250,
+      5213,
+      533,
+      533
+    ],
+    "hr_res_m": 2.5,
+    "lr_res_m": 10.0,
+    "spatial_std": 47.927974700927734
+  }
+}
