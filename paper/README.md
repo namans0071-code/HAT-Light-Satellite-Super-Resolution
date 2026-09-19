@@ -1,10 +1,10 @@
-﻿# 📄 Research Paper
+# 📄 Research Paper
 
 ### **Continuous Multi-Spectral Satellite Super-Resolution via Hybrid Attention Transformers and Radiometric Physical Constraints**
 
 **Author:** Naman Sharma  
-*Department of Computer Science and Engineering*  
-📧 Contact: `contact@namansharama.dev`
+*Department of Computer Science and Engineering, JECRC University, Jaipur 302019, India*  
+📧 Contact: `namans0071@gmail.com`
 
 ---
 

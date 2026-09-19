@@ -20,8 +20,9 @@
 ## 📄 Academic Research Paper
 
 > **Paper Title:** *Continuous Multi-Spectral Satellite Super-Resolution via Hybrid Attention Transformers and Radiometric Physical Constraints*  
-> **Author:** Naman Sharma  
+> **Author:** Naman Sharma (Department of Computer Science and Engineering, JECRC University, Jaipur 302019, India; Contact: `namans0071@gmail.com`)  
 > **Target Venue:** *IEEE Geoscience and Remote Sensing Letters (GRSL)* / *arXiv:eess.IV*  
+> **Paper Specification & Publication Hub:** [`paper/README.md`](paper/README.md)  
 > **Pretrained Weights:** [`weights/best_model.pth`](weights/best_model.pth) (Official HAT-Light Checkpoint; baseline checkpoints available in [Releases](https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution/releases))
 
 
