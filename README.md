@@ -734,9 +734,40 @@ HAT-Light-Satellite-Super-Resolution/
 │   ├── infer.py                   # Standalone CLI batch inference script
 │   └── trainer.py                 # Full 100-Epoch training supervisor with AMP & telemetry
 │
-├── weights/
-│   ├── best_model.pth             # Trained model checkpoint (Epoch 82/100, 58.4 MB)
-│   └── README.md                  # Model weights documentation & verification hash
+├── paper/                         # 📄 Paper Reference Hub & Publication Figures
+│   ├── README.md                  # Paper specification, abstract, DOI badges, BibTeX
+│   └── figures/                   # 300 DPI publication figures (Figs 1–4)
+│
+├── weights/                       # ⚖️ Git LFS-tracked Pretrained Model Weights
+│   ├── best_model.pth             # Official HAT-Light Checkpoint (5.09M params, 58.4 MB)
+│   └── README.md                  # Model weights documentation & baseline release guide
+│
+├── baselines/                     # 🏛️ Multi-Spectral SOTA Baseline Implementations
+│   ├── edsr.py                    # 4-channel adapted EDSR (Lim et al.)
+│   ├── rcan.py                    # 4-channel adapted RCAN (Zhang et al.)
+│   ├── swinir_light.py            # 4-channel adapted SwinIR-Light (Liang et al.)
+│   └── train_baselines.py         # Standardized baseline training pipeline
+│
+├── benchmarks/                    # 📊 Benchmark Evaluation Harness (Table I & Figs 1–3)
+│   ├── evaluate_all_models.py     # Automated multi-model evaluation harness (PSNR, SSIM, SAM, ERGAS)
+│   ├── generate_paper_figures.py  # High-DPI visualization generator for publication figures
+│   ├── comparative_results.json   # Benchmark metrics across all models
+│   ├── table_comparative_results.md # Markdown benchmark summary
+│   └── README.md                  # Benchmark instructions & reproduction guide
+│
+├── ablations/                     # 🔬 Component & Loss Ablation Suite (Table II)
+│   ├── run_ablation.py            # Systematic loss and FFN ablation runner
+│   ├── ablation_results.json      # Numerical ablation metrics
+│   ├── table_ablation.md          # Markdown ablation table
+│   └── README.md                  # Scientific ablation analysis & reproduction guide
+│
+├── cross_sensor/                  # 🌍 Zero-Shot Cross-Sensor Validation (Table III & Fig 4)
+│   ├── extract_targeted_naip.py   # USGS NAIP 2.5m 4-band extractor (5 biomes)
+│   ├── build_naip_cross_sensor_dataset.py # Wald protocol degradation builder
+│   ├── evaluate_cross_sensor.py   # Zero-shot cross-sensor evaluation script
+│   ├── generate_clean_fig4.py     # High-resolution Fig. 4 visual grid generator
+│   ├── cross_sensor_results.json  # Cross-sensor numerical metrics
+│   └── README.md                  # Wald protocol methodology & results
 │
 ├── pipeline/                      # Copernicus Sentinel-2 automated ingestion
 │   ├── cdse_client.py             # CDSE OData REST API client (OAuth2, streaming download)
@@ -755,15 +786,11 @@ HAT-Light-Satellite-Super-Resolution/
 │       ├── src/                   # React + Tailwind + Lucide UI source
 │       └── dist/                  # Pre-compiled high-performance production build
 │
-├── benchmarks/                    # Benchmark evaluation data, curves & reports
-│   ├── best_model_eval_epoch_100.png
-│   ├── training_curves_epoch_100.png
-│   ├── evaluation_metrics.json
-│   └── benchmark_report.md
-│
-└── test_dataset/                  # 799 curated multi-spectral evaluation test patches
-    ├── HR/                        # Ground truth 4-channel uint16 test patches
-    └── sample_preview.png
+└── test_dataset/                  # 🧪 600 curated multi-spectral evaluation test patches
+    ├── HR/                        # Ground truth 4-channel uint16 test patches (128x128)
+    ├── LR/                        # Degraded 4-channel uint16 test patches (32x32)
+    ├── sample_preview.png         # Multi-biome visual sample preview
+    └── README.md                  # Test dataset specifications & loading guide
 ```
 
 ---
