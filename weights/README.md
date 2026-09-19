@@ -27,6 +27,13 @@ This directory stores the trained model checkpoint for the HAT-Light 4-channel s
 | **SSIM** | 0.812 | **0.934** | **+0.122** |
 | **MAE** | 0.042 | **0.012** | **-71.4%** |
 
+## Comparative Baseline Weights Note
+
+To maintain repository focus and adhere to Git LFS bandwidth best practices, this directory contains exclusively the official **HAT-Light** model checkpoint (`best_model.pth`). 
+
+Baseline architectures (EDSR, RCAN, SwinIR-Light) evaluated in Table I of our research paper can be retrained directly via `src/baseline_models.py` or downloaded as release assets from the [GitHub Releases page](https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution/releases). If downloaded, place `edsr_best.pth`, `rcan_best.pth`, and `swinir_light_best.pth` in this directory to evaluate them with `python benchmarks/evaluate_all_models.py`.
+
 ## Git LFS Note
 
-If managing this repository with Git, this file can either be pushed directly (<100MB) or tracked via Git LFS (`.gitattributes` is preconfigured for `*.pth`).
+If managing this repository with Git, this file is tracked via Git LFS (`.gitattributes` is preconfigured for `*.pth`).
+

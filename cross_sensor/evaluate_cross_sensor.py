@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import json
@@ -52,25 +52,45 @@ def main():
     models = {}
     models["Bicubic Baseline"] = {"model": None, "params": 0}
 
-    edsr = EDSR(n_feats=64, n_resblocks=16).to(device)
-    edsr.load_state_dict(torch.load("weights/edsr_best.pth", map_location=device, weights_only=False)["model_state"])
-    edsr.eval()
-    models["EDSR"] = {"model": edsr, "params": sum(p.numel() for p in edsr.parameters())}
+    # 2. EDSR (Optional Baseline)
+    edsr_path = Path("weights/edsr_best.pth")
+    if edsr_path.exists():
+        edsr = EDSR(n_feats=64, n_resblocks=16).to(device)
+        edsr.load_state_dict(torch.load(str(edsr_path), map_location=device, weights_only=False)["model_state"])
+        edsr.eval()
+        models["EDSR"] = {"model": edsr, "params": sum(p.numel() for p in edsr.parameters())}
+    else:
+        print("Note: 'weights/edsr_best.pth' not found (optional baseline). Skipping EDSR.")
 
-    rcan = RCAN(n_feats=64, n_resgroups=4, n_rcab=4).to(device)
-    rcan.load_state_dict(torch.load("weights/rcan_best.pth", map_location=device, weights_only=False)["model_state"])
-    rcan.eval()
-    models["RCAN"] = {"model": rcan, "params": sum(p.numel() for p in rcan.parameters())}
+    # 3. RCAN (Optional Baseline)
+    rcan_path = Path("weights/rcan_best.pth")
+    if rcan_path.exists():
+        rcan = RCAN(n_feats=64, n_resgroups=4, n_rcab=4).to(device)
+        rcan.load_state_dict(torch.load(str(rcan_path), map_location=device, weights_only=False)["model_state"])
+        rcan.eval()
+        models["RCAN"] = {"model": rcan, "params": sum(p.numel() for p in rcan.parameters())}
+    else:
+        print("Note: 'weights/rcan_best.pth' not found (optional baseline). Skipping RCAN.")
 
-    swin = SwinIRLight(embed_dim=60, num_rstb=4, depth_per_rstb=4).to(device)
-    swin.load_state_dict(torch.load("weights/swinir_light_best.pth", map_location=device, weights_only=False)["model_state"])
-    swin.eval()
-    models["SwinIR-Light"] = {"model": swin, "params": sum(p.numel() for p in swin.parameters())}
+    # 4. SwinIR-Light (Optional Baseline)
+    swin_path = Path("weights/swinir_light_best.pth")
+    if swin_path.exists():
+        swin = SwinIRLight(embed_dim=60, num_rstb=4, depth_per_rstb=4).to(device)
+        swin.load_state_dict(torch.load(str(swin_path), map_location=device, weights_only=False)["model_state"])
+        swin.eval()
+        models["SwinIR-Light"] = {"model": swin, "params": sum(p.numel() for p in swin.parameters())}
+    else:
+        print("Note: 'weights/swinir_light_best.pth' not found (optional baseline). Skipping SwinIR-Light.")
 
-    hat = HATLightSR().to(device)
-    hat.load_state_dict(torch.load("weights/best_model.pth", map_location=device, weights_only=False)["model_state"])
-    hat.eval()
-    models["HAT-Light (Ours)"] = {"model": hat, "params": sum(p.numel() for p in hat.parameters())}
+    # 5. HAT-Light (Proposed - Primary Model)
+    hat_path = Path("weights/best_model.pth")
+    if hat_path.exists():
+        hat = HATLightSR().to(device)
+        hat.load_state_dict(torch.load(str(hat_path), map_location=device, weights_only=False)["model_state"])
+        hat.eval()
+        models["HAT-Light (Ours)"] = {"model": hat, "params": sum(p.numel() for p in hat.parameters())}
+    else:
+        print("Error: Primary model checkpoint 'weights/best_model.pth' not found!")
 
     categories = ['airport_runway', 'urban_grid', 'military_airbase', 'agriculture_canopy', 'harbor_coastal']
     results = {}
