@@ -22,7 +22,7 @@
 > **Paper Title:** *Continuous Multi-Spectral Satellite Super-Resolution via Hybrid Attention Transformers and Radiometric Physical Constraints*  
 > **Author:** Naman Sharma  
 > **Target Venue:** *IEEE Geoscience and Remote Sensing Letters (GRSL)* / *arXiv:eess.IV*  
-> **LaTeX Manuscript & Overleaf Bundle:** [`paper/main.tex`](paper/main.tex) | [`paper/overleaf_ieee_grsl_package.zip`](paper/overleaf_ieee_grsl_package.zip)  
+> **Paper Specification & Publication Hub:** [`paper/README.md`](paper/README.md)  
 > **Pretrained Weights:** [`weights/best_model.pth`](weights/best_model.pth) (HAT-Light), [`weights/edsr_best.pth`](weights/edsr_best.pth) (EDSR), [`weights/rcan_best.pth`](weights/rcan_best.pth) (RCAN), [`weights/swinir_light_best.pth`](weights/swinir_light_best.pth) (SwinIR-Light)
 
 ### 📊 Empirical Validation Highlights
