@@ -148,8 +148,8 @@ def health():
         "mode": "Zero-GPU Verified CPU Float32" if DEVICE.type == "cpu" else "GPU Accelerated",
         "checkpoint": str(CHECKPOINT_PATH.name),
         "checkpoint_exists": CHECKPOINT_PATH.exists(),
-        "trained_benchmark_psnr": "40.18 dB (Test Split Benchmark)",
-        "total_test_patches": 799
+        "trained_benchmark_psnr": "33.48 dB (600 Curated Patches)",
+        "total_test_patches": 600
     }
 
 
@@ -234,7 +234,7 @@ def run_inference(req: InferRequest):
                 break
 
     if target_hr is None or not target_hr.exists():
-        all_patches = sorted(list((MODEL_DIR / "test_dataset" / "HR").glob("*.npy")))
+        all_patches = sorted(list((REPO_ROOT / "test_dataset" / "HR").glob("*.npy")))
         if all_patches:
             target_hr = all_patches[0]
         else:

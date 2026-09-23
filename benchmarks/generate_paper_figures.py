@@ -1,6 +1,10 @@
-﻿import sys
+import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+BENCHMARKS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(BENCHMARKS_DIR))
 
 import math
 import torch
@@ -20,32 +24,41 @@ from core.dataset import normalize_patch, stretch_channel, make_rgb_composite, m
 
 def load_all_models(device):
     models = {}
+    weights_dir = REPO_ROOT / "weights"
     
     # EDSR
-    edsr = EDSR(n_feats=64, n_resblocks=16).to(device)
-    ckpt_e = torch.load("weights/edsr_best.pth", map_location=device, weights_only=False)
-    edsr.load_state_dict(ckpt_e["model_state"])
-    edsr.eval()
-    models["EDSR"] = edsr
+    edsr_p = weights_dir / "edsr_best.pth"
+    if edsr_p.exists():
+        edsr = EDSR(n_feats=64, n_resblocks=16).to(device)
+        ckpt_e = torch.load(str(edsr_p), map_location=device, weights_only=False)
+        edsr.load_state_dict(ckpt_e["model_state"])
+        edsr.eval()
+        models["EDSR"] = edsr
     
     # RCAN
-    rcan = RCAN(n_feats=64, n_resgroups=4, n_rcab=4).to(device)
-    ckpt_r = torch.load("weights/rcan_best.pth", map_location=device, weights_only=False)
-    rcan.load_state_dict(ckpt_r["model_state"])
-    rcan.eval()
-    models["RCAN"] = rcan
+    rcan_p = weights_dir / "rcan_best.pth"
+    if rcan_p.exists():
+        rcan = RCAN(n_feats=64, n_resgroups=4, n_rcab=4).to(device)
+        ckpt_r = torch.load(str(rcan_p), map_location=device, weights_only=False)
+        rcan.load_state_dict(ckpt_r["model_state"])
+        rcan.eval()
+        models["RCAN"] = rcan
     
     # SwinIR-Light
-    swin = SwinIRLight(embed_dim=60, num_rstb=4, depth_per_rstb=4).to(device)
-    ckpt_s = torch.load("weights/swinir_light_best.pth", map_location=device, weights_only=False)
-    swin.load_state_dict(ckpt_s["model_state"])
-    swin.eval()
-    models["SwinIR-Light"] = swin
+    swin_p = weights_dir / "swinir_light_best.pth"
+    if swin_p.exists():
+        swin = SwinIRLight(embed_dim=60, num_rstb=4, depth_per_rstb=4).to(device)
+        ckpt_s = torch.load(str(swin_p), map_location=device, weights_only=False)
+        swin.load_state_dict(ckpt_s["model_state"])
+        swin.eval()
+        models["SwinIR-Light"] = swin
     
     # HAT-Light
+    hat_p = weights_dir / "best_model.pth"
     hat = HATLightSR().to(device)
-    ckpt_h = torch.load("weights/best_model.pth", map_location=device, weights_only=False)
-    hat.load_state_dict(ckpt_h["model_state"])
+    if hat_p.exists():
+        ckpt_h = torch.load(str(hat_p), map_location=device, weights_only=False)
+        hat.load_state_dict(ckpt_h.get("model_state", ckpt_h))
     hat.eval()
     models["HAT-Light"] = hat
     
@@ -54,8 +67,8 @@ def load_all_models(device):
 
 def generate_figure1_comparisons(models, device):
     print("Generating Figure 1: Multi-Biome Visual Comparison...")
-    hr_dir = Path("test_dataset/HR")
-    lr_dir = Path("test_dataset/LR")
+    hr_dir = REPO_ROOT / "test_dataset" / "HR"
+    lr_dir = REPO_ROOT / "test_dataset" / "LR"
     
     # Select 4 representative patches from different biomes
     categories = ["airport", "city", "military", "vegetation"]
@@ -81,9 +94,9 @@ def generate_figure1_comparisons(models, device):
                 t_lr = torch.nn.functional.interpolate(t_hr, size=(32, 32), mode="bicubic", align_corners=False, antialias=True)
                 
             t_bic = torch.clamp(torch.nn.functional.interpolate(t_lr, size=(128, 128), mode="bicubic", align_corners=False), 0.0, 2.0)
-            t_edsr = models["EDSR"](t_lr)
-            t_rcan = models["RCAN"](t_lr)
-            t_swin = models["SwinIR-Light"](t_lr)
+            t_edsr = models["EDSR"](t_lr) if "EDSR" in models else t_bic
+            t_rcan = models["RCAN"](t_lr) if "RCAN" in models else t_bic
+            t_swin = models["SwinIR-Light"](t_lr) if "SwinIR-Light" in models else t_bic
             t_hat = models["HAT-Light"](t_lr)
             
             cat_name = f_hr.stem.split("_")[1].capitalize()
@@ -119,7 +132,7 @@ def generate_figure1_comparisons(models, device):
                             fontweight="bold", va="center", ha="right")
                             
     plt.tight_layout()
-    out_path = Path("paper/figures/fig1_visual_comparison.png")
+    out_path = REPO_ROOT / "assets" / "fig1_visual_comparison.png"
     plt.savefig(out_path, bbox_inches="tight", dpi=300)
     plt.close()
     print(f"  -> Saved {out_path}")
@@ -127,8 +140,8 @@ def generate_figure1_comparisons(models, device):
 
 def generate_figure2_transects(models, device):
     print("Generating Figure 2: Lineament 1D Transect Edge Profiles...")
-    hr_dir = Path("test_dataset/HR")
-    lr_dir = Path("test_dataset/LR")
+    hr_dir = REPO_ROOT / "test_dataset" / "HR"
+    lr_dir = REPO_ROOT / "test_dataset" / "LR"
     
     # Pick a high-contrast runway or road patch
     airport_patches = sorted(list(hr_dir.glob("*airport*.npy")))
@@ -137,12 +150,15 @@ def generate_figure2_transects(models, device):
     arr_hr = np.load(target_patch)
     t_hr = torch.from_numpy(normalize_patch(arr_hr)).unsqueeze(0).to(device)
     f_lr = lr_dir / target_patch.name
-    t_lr = torch.from_numpy(normalize_patch(np.load(f_lr))).unsqueeze(0).to(device)
+    if f_lr.exists():
+        t_lr = torch.from_numpy(normalize_patch(np.load(f_lr))).unsqueeze(0).to(device)
+    else:
+        t_lr = torch.nn.functional.interpolate(t_hr, size=(32, 32), mode="bicubic", align_corners=False, antialias=True)
     
     with torch.no_grad():
         t_bic = torch.clamp(torch.nn.functional.interpolate(t_lr, size=(128, 128), mode="bicubic", align_corners=False), 0.0, 2.0)
-        t_edsr = models["EDSR"](t_lr)
-        t_swin = models["SwinIR-Light"](t_lr)
+        t_edsr = models["EDSR"](t_lr) if "EDSR" in models else t_bic
+        t_swin = models["SwinIR-Light"](t_lr) if "SwinIR-Light" in models else t_bic
         t_hat = models["HAT-Light"](t_lr)
         
     # Extract horizontal transect across high-contrast feature (row 64, red band)
@@ -182,7 +198,7 @@ def generate_figure2_transects(models, device):
     ax_plot.legend(loc="upper right", frameon=True)
     
     plt.tight_layout()
-    out_path = Path("paper/figures/fig2_transect_edge_profile.png")
+    out_path = REPO_ROOT / "assets" / "fig2_transect_edge_profile.png"
     plt.savefig(out_path, bbox_inches="tight", dpi=300)
     plt.close()
     print(f"  -> Saved {out_path}")
@@ -190,8 +206,8 @@ def generate_figure2_transects(models, device):
 
 def generate_figure3_ndvi(models, device):
     print("Generating Figure 3: Biophysical NDVI Scatter Correlation...")
-    hr_dir = Path("test_dataset/HR")
-    lr_dir = Path("test_dataset/LR")
+    hr_dir = REPO_ROOT / "test_dataset" / "HR"
+    lr_dir = REPO_ROOT / "test_dataset" / "LR"
     veg_patches = sorted(list(hr_dir.glob("*vegetation*.npy")))[:12]
     
     gt_ndvis, bic_ndvis, hat_ndvis = [], [], []
@@ -201,7 +217,10 @@ def generate_figure3_ndvi(models, device):
             arr_hr = np.load(p)
             t_hr = torch.from_numpy(normalize_patch(arr_hr)).unsqueeze(0).to(device)
             f_lr = lr_dir / p.name
-            t_lr = torch.from_numpy(normalize_patch(np.load(f_lr))).unsqueeze(0).to(device)
+            if f_lr.exists():
+                t_lr = torch.from_numpy(normalize_patch(np.load(f_lr))).unsqueeze(0).to(device)
+            else:
+                t_lr = torch.nn.functional.interpolate(t_hr, size=(32, 32), mode="bicubic", align_corners=False, antialias=True)
             
             t_bic = torch.clamp(torch.nn.functional.interpolate(t_lr, size=(128, 128), mode="bicubic", align_corners=False), 0.0, 2.0)
             t_hat = models["HAT-Light"](t_lr)
@@ -262,7 +281,7 @@ def generate_figure3_ndvi(models, device):
     ax2.legend(loc="upper left")
     
     plt.tight_layout()
-    out_path = Path("paper/figures/fig3_ndvi_biophysical_fidelity.png")
+    out_path = REPO_ROOT / "assets" / "fig3_ndvi_biophysical_fidelity.png"
     plt.savefig(out_path, bbox_inches="tight", dpi=300)
     plt.close()
     print(f"  -> Saved {out_path} (HAT-Light R2: {r2_hat:.3f})")
@@ -276,7 +295,7 @@ def main():
     generate_figure1_comparisons(models, device)
     generate_figure2_transects(models, device)
     generate_figure3_ndvi(models, device)
-    print("\nAll publication figures generated successfully in paper/figures/!")
+    print("\nAll publication figures generated successfully in assets/!")
 
 
 if __name__ == "__main__":

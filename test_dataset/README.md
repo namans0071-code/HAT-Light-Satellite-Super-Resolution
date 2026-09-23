@@ -1,4 +1,4 @@
-﻿# 🧪 Curated Sentinel-2 Multi-Spectral Test Dataset
+# 🧪 Curated Sentinel-2 Multi-Spectral Test Dataset
 
 This directory contains the standardized, curated test split utilized for the comparative benchmarks (Table I) and ablation studies (Table II) in our research paper.
 
@@ -6,7 +6,7 @@ This directory contains the standardized, curated test split utilized for the co
 
 ## 📊 Dataset Specifications
 
-- **Total Test Patches:** 600 paired granules
+- **Total Test Patches:** 600 curated granules
 - **Storage Format:** NumPy arrays (`.npy`), 16-bit unsigned integers (`uint16`)
 - **Spectral Bands (4 Channels):**
   - **Channel 0:** Band 4 (Red, $\lambda_c = 665\text{ nm}$)
@@ -14,8 +14,8 @@ This directory contains the standardized, curated test split utilized for the co
   - **Channel 2:** Band 2 (Blue, $\lambda_c = 490\text{ nm}$)
   - **Channel 3:** Band 8 (Near-Infrared / NIR, $\lambda_c = 842\text{ nm}$)
 - **Spatial Resolution & Dimensions:**
-  - `HR/`: Ground truth native 10m surface reflectance ($128 \times 128 \times 4$)
-  - `LR/`: Sensor-degraded inputs at 40m equivalent GSD ($32 \times 32 \times 4$)
+  - `HR/`: High-resolution native 10m surface reflectance ($128 \times 128 \times 4$)
+  - Low-resolution inputs ($32 \times 32 \times 4$) are generated dynamically on-the-fly by the PyTorch loader via antialiased bicubic downsampling, eliminating dataset redundancy.
 - **Scale Factor:** $4\times$ spatial magnification ($10\text{m} \to 2.5\text{m}$ operational target)
 
 ---

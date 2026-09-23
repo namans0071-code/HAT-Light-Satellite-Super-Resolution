@@ -1,35 +1,52 @@
-# 🛰️ Hybrid Attention Transformers for 4-Channel Multi-Spectral Satellite Imagery Super-Resolution (HAT-Light)
-### Continuous 10m → 2.5m (4x) Spatial Super-Resolution with Radiometric and Near-Infrared (NIR) Band Preservation
+# ??? HAT-Light: Continuous Multi-Spectral Satellite Imagery Super-Resolution
 
 <div align="center">
 
-[![Paper](https://img.shields.io/badge/Format-Research%20Paper%20Specification-blue.svg)](#abstract)
+[![Paper Under Review](https://img.shields.io/badge/Paper-IEEE%20GRSL%20%7C%20arXiv%20Preprint-blue.svg)](https://arxiv.org/abs/2609.xxxxx)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B%20%7C%20Ampere%20Optimized-EE4C2C.svg)](https://pytorch.org/)
-[![Benchmark PSNR](https://img.shields.io/badge/FinalTest%20PSNR-40.18%20dB%20%7C%20%2B6.75%20dB-0A84FF.svg)](#results)
-[![Edge/CPU Ready](https://img.shields.io/badge/CPU%20Inference-161ms%20%7C%20Zero--GPU-34C759.svg)](#quickstart)
-[![Hardware Budget](https://img.shields.io/badge/Trained%20On-RTX%203050%20%7C%206GB%20VRAM-8957E5.svg)](#hardware-engineering)
-[![Dataset Volume](https://img.shields.io/badge/Dataset-8%2C000%20Patches%20%7C%2016%20Global%20AOIs-FF9500.svg)](#dataset)
+[![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0%2B%20%7C%20CUDA%20%26%20CPU-EE4C2C.svg)](https://pytorch.org/)
+[![Benchmark PSNR](https://img.shields.io/badge/Curated%20Test%20PSNR-33.48%20dB%20%7C%20%2B1.25%20dB-0A84FF.svg)](#-empirical-benchmarks)
+[![Inference Speed](https://img.shields.io/badge/GPU%20Throughput-78.7%20FPS%20%7C%2012.7ms-34C759.svg)](#-interactive-web-studio)
+[![Edge/CPU Ready](https://img.shields.io/badge/CPU%20Inference-161ms%20%7C%20Zero--GPU-orange.svg)](#-interactive-web-studio)
+[![Curated Patches](https://img.shields.io/badge/Curated%20Test%20Set-600%20HR%20Patches-8957E5.svg)](#-curated-test-dataset)
 
-**Independent Open-Source Research & Engineering in Satellite Remote Sensing & Deep Learning**
+**Official PyTorch Implementation and Benchmark Toolkit for:**  
+### *"Continuous Multi-Spectral Satellite Super-Resolution via Hybrid Attention Transformers and Radiometric Physical Constraints"*
+**Author:** Naman Sharma (Department of Computer Science & Engineering, JECRC University, Jaipur 302019, India &bull; `namans0071@gmail.com`)
 
 </div>
 
 ---
 
-## 📄 Academic Research Paper
+## ?? Overview
 
-> **Paper Title:** *Continuous Multi-Spectral Satellite Super-Resolution via Hybrid Attention Transformers and Radiometric Physical Constraints*  
-> **Author:** Naman Sharma (Department of Computer Science and Engineering, JECRC University, Jaipur 302019, India; Contact: `namans0071@gmail.com`)  
-> **Target Venue:** *IEEE Geoscience and Remote Sensing Letters (GRSL)* / *arXiv:eess.IV*  
-> **Paper Specification & Publication Hub:** [`paper/README.md`](paper/README.md)  
-> **Pretrained Weights:** [`weights/best_model.pth`](weights/best_model.pth) (Official HAT-Light Checkpoint; baseline checkpoints available in [Releases](https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution/releases))
+Spaceborne optical constellations such as ESA's **Copernicus Sentinel-2** provide planetary-scale Earth observation data critical for agriculture, disaster management, environmental monitoring, and urban planning. However, physical orbital payload constraints, detector pixel pitch, and optical telescope diffraction limit native Ground Sampling Distance (GSD) to **10 meters per pixel** for the primary Visible (B02 Blue, B03 Green, B04 Red) and Near-Infrared (B08 NIR) bands.
 
+**HAT-Light** is a lightweight, continuous-scale **Hybrid Attention Transformer** specially engineered for 4-channel, 16-bit Bottom-Of-Atmosphere (BOA) satellite surface reflectance ($10\text{m} \to 2.5\text{m}$, $4\times$ spatial magnification). It resolves fine geospatial lineaments (runway centerlines, crop parcel boundaries, building footprints) while strictly enforcing radiometric physical conservation.
 
-### 📊 Empirical Validation Highlights
+```
+       4-BAND INPUT TENSOR                              HAT-LIGHT TRANSFORMER BACKBONE                            4-BAND 2.5m OUTPUT
+   x ? R^{B � 4 � H � W}, uint16          +---------------------------------------------------------+        y^ ? R^{B � 4 � 4H � 4W}, uint16
+ [B04 Red, B03 Green, B02 Blue, B08 NIR]  � Shallow Conv --? 6x RHAG (W-MSA + SW-MSA + DW-FFN)     �   [Sub-Pixel PixelShuffle + Bicubic Skip]
+      (Native 10m Sentinel-2)            �           --? Continuous Scale FiLM --? Reconstruction  �   (Reconstructed 2.5m Reflectance)
+                                          +---------------------------------------------------------+
+```
 
-#### 1. Master Comparative Benchmark (600 Curated Sentinel-2 Patches)
-Evaluated across six global biomes (Aviation hubs, Urban grids, Airbases, Agricultural canopies, Harbors, Alpine terrain):
+### ? Key Technical Highlights
+
+- **Window Multi-Head Self-Attention (W-MSA & SW-MSA):** Partitions spatial feature maps into non-overlapping and shifted $8 \times 8$ windows with relative position bias, capturing non-local spatial context with **256� lower attention complexity** than global ViTs.
+- **Depthwise Convolutional FFN (DW-FFN):** Couples self-attention with depthwise $3 \times 3$ convolutions to restore translational equivariance and suppress high-frequency ringing artifacts along sharp edges.
+- **Continuous Scale FiLM Conditioning:** Modulates deep features dynamically via harmonic sinusoidal position embeddings and Feature-wise Linear Modulation ($<0.04\%$ parameter overhead), allowing arbitrary continuous magnification from a single trained model.
+- **Composite Radiometric Physical Loss Suite:** Replaces RGB/8-bit perceptual losses (VGG/LPIPS) with a multi-task physical objective: Smooth Charbonnier $L_1$, 2D Real FFT spectral alignment, spatial Sobel gradients, and a singularity-free Convex Cosine Spectral Angle Mapper (SAM).
+- **Extreme Hardware Efficiency:** Fully trainable from scratch on a consumer mobile GPU (RTX 3050 Laptop, 6GB VRAM) via FP16 mixed precision and gradient accumulation; runs real-time inference on GPU (**78.7 FPS**, 12.7 ms/patch) and CPU (**161 ms/patch**).
+- **Production Geospatial Engine:** 2D Hann-window sliding tiling engine eliminates boundary seamlines on gigapixel rasters, with sub-pixel affine geotransform updates preserving georeferencing and CRS in 16-bit GeoTIFF exports.
+
+---
+
+## ?? Empirical Benchmarks
+
+### 1. Master Comparative Benchmark (600 Curated Sentinel-2 Test Patches)
+Evaluated across six global biomes (Aviation hubs, Urban grids, Airbases, Agricultural canopies, Harbors, Alpine terrain) at $4\times$ magnification ($10\text{m} \to 2.5\text{m}$ GSD):
 
 | Architecture | Parameters | Latency (ms) | FPS | PSNR Overall (dB) $\uparrow$ | Red (B04) | Green (B03) | Blue (B02) | NIR (B08) | SSIM $\uparrow$ | SAM ($^\circ$) $\downarrow$ | ERGAS $\downarrow$ |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -41,19 +58,20 @@ Evaluated across six global biomes (Aviation hubs, Urban grids, Airbases, Agricu
 
 *Net Gain of HAT-Light: **+1.25 dB PSNR**, **+0.0375 SSIM**, **-0.31$^\circ$ SAM** over Bicubic; **+0.71 dB** over RCAN.*
 
-#### 2. Component Ablation Study (Test Split)
-Controlled removal of each architectural and radiometric loss component:
+### 2. Component Ablation Study
+Systematic evaluation isolating the empirical contribution of each physical loss and architectural component:
 
-| Configuration | PSNR (dB) $\uparrow$ | SSIM $\uparrow$ | SAM ($^\circ$) $\downarrow$ | ERGAS $\downarrow$ | $\Delta$ PSNR (dB) |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Full Proposed HAT-Light** | **33.48** | **0.9048** | **1.37** | **1.89** | **0.00** |
-| w/o Cosine SAM Loss ($\mathcal{L}_{\text{SAM}}$) | 33.31 | 0.9012 | 1.56 | 1.94 | -0.17 |
-| w/o 2D rFFT Spectral Loss ($\mathcal{L}_{\text{FFT}}$) | 33.12 | 0.8985 | 1.49 | 1.98 | -0.36 |
-| w/o Spatial Gradient Loss ($\mathcal{L}_{\text{grad}}$) | 33.19 | 0.8994 | 1.46 | 1.96 | -0.29 |
-| w/o DW-FFN (Standard Linear FFN) | 32.97 | 0.8936 | 1.52 | 2.01 | -0.51 |
+| Configuration | PSNR (dB) $\uparrow$ | SSIM $\uparrow$ | SAM ($^\circ$) $\downarrow$ | ERGAS $\downarrow$ | $\Delta$ PSNR (dB) | Physical Effect / Impact |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Full Proposed HAT-Light** | **33.48** | **0.9048** | **1.37** | **1.89** | **0.00** | Full balance of spectral, spatial, and frequency fidelity |
+| w/o Cosine SAM Loss ($\mathcal{L}_{\text{SAM}}$) | 33.31 | 0.9012 | 1.56 | 1.94 | -0.17 | Inter-band spectral angle skew; chromatic distortion |
+| w/o 2D rFFT Spectral Loss ($\mathcal{L}_{\text{FFT}}$) | 33.12 | 0.8985 | 1.49 | 1.98 | -0.36 | Blurs periodic agricultural textures and high harmonics |
+| w/o Spatial Gradient Loss ($\mathcal{L}_{\text{grad}}$) | 33.19 | 0.8994 | 1.46 | 1.96 | -0.29 | Edge transition softening on runways and parcel borders |
+| w/o DW-FFN (Standard Linear FFN) | 32.97 | 0.8936 | 1.52 | 2.01 | -0.51 | Loss of translation-equivariant inductive biases |
+| w/o Continuous FiLM Scale Head | 33.30 | 0.9013 | 1.43 | 1.97 | -0.18 | Disables arbitrary-scale continuous zoom capability |
 
-#### 3. Zero-Shot Cross-Sensor Validation under Wald Protocol (USGS NAIP 2.5m)
-Zero-shot transfer across 100 authentic multi-spectral patches (LAX Airport, Downtown LA Grid, MCAS Miramar Airbase, San Joaquin Valley, Port of LA):
+### 3. Zero-Shot Cross-Sensor Generalization (Wald Protocol on USGS NAIP 2.5m)
+Zero-shot transfer across 100 authentic 2.5m multi-spectral patches (LAX Airport, Downtown LA Grid, MCAS Miramar Airbase, San Joaquin Crop Canopies, Port of LA):
 
 | Architecture | PSNR Overall (dB) $\uparrow$ | SSIM $\uparrow$ | SAM ($^\circ$) $\downarrow$ | ERGAS $\downarrow$ | Net Gain vs Bicubic |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -65,766 +83,270 @@ Zero-shot transfer across 100 authentic multi-spectral patches (LAX Airport, Dow
 
 ---
 
-<a id="abstract"></a>
-## 📜 Abstract
+## ??? Visual Results Gallery
 
-Satellite remote sensing from sun-synchronous optical constellations, such as the European Space Agency's (ESA) **Copernicus Sentinel-2**, provides planetary-scale multi-spectral observations crucial for environmental monitoring, precision agriculture, maritime intelligence, and urban development. However, orbital payload constraints, detector pixel pitch, and optical diffraction limits physically restrict the native ground sampling distance (GSD) of Sentinel-2 to **10 meters per pixel** for the primary Visible (B02 Blue, B03 Green, B04 Red) and Near-Infrared (B08 NIR) bands.
+### Multi-Biome Qualitative Spatial Comparison
+![Multi-Biome Comparison](assets/fig1_visual_comparison.png)
+*Figure 1: Visual comparison across Airport, City Grid, Military Base, and Agricultural Farmland on the held-out Sentinel-2 test split ($10\text{m} \to 2.5\text{m}$, Scale $4\times$) against Bicubic, EDSR, RCAN, and SwinIR-Light baselines across True Color (RGB) and Color Infrared (CIR).*
 
-In this work, we propose **HAT-Light**, a lightweight, continuous-scale **Hybrid Attention Transformer** specially engineered for 4-channel, 16-bit Bottom-Of-Atmosphere (BOA) satellite surface reflectance. HAT-Light synergistically integrates:
-1. **Window-based Multi-Head Self-Attention (W-MSA & SW-MSA)** with Relative Position Bias ($B \in \mathbb{R}^{M^2 \times M^2}$) to model long-range structural dependencies across terrain biomes while reducing attention complexity by **256×** compared to global attention.
-2. **Depthwise Convolutional Feed-Forward Networks (DW-FFN)** to inject translation-equivariant inductive biases essential for resolving fine geospatial lineaments.
-3. **Continuous Scale FiLM Conditioning** to modulate scale dynamically with minimal parameter overhead ($< 0.04\%$ parameter footprint) via harmonic sinusoidal position embeddings and Feature-wise Linear Modulation.
-4. A **Composite Multi-Task Radiometric Physical Loss Suite** (Charbonnier L1, 2D Spectral FFT, Spatial Gradient, and Cosine SAM) that bypasses the radiometric degradation and band limitations of ImageNet-pretrained perceptual models.
-5. An **Extreme-Efficiency Training Pipeline** that successfully converges the transformer backbone on a highly constrained consumer laptop GPU (**NVIDIA GeForce RTX 3050, 6GB VRAM**) utilizing mixed-precision FP16 Tensor Cores, gradient accumulation, and zero-allocation memory recycling without a single out-of-memory event.
-6. A **Curated Global Multi-Spectral Benchmark Dataset of 8,000 Patches** acquired across **16 diverse geographic Areas of Interest (AOIs)** via the Copernicus Data Space Ecosystem (CDSE) OData API, subjected to physical Gaussian Point Spread Function (PSF) degradation ($\sigma \in [0.6, 1.4]$) and rigorous quality filtering.
+### 1D Cross-Sectional Surface Reflectance Edge Profile
+![1D Edge Profile](assets/fig2_transect_edge_profile.png)
+*Figure 2: 1D pixel intensity transect across an airport runway centerline threshold. HAT-Light closely reproduces the steep step response of the native high-resolution reference without artificial overshoot or ringing.*
 
-Across an independent, held-out test distribution of **799 Sentinel-2 granules**, HAT-Light achieves an overall **40.18 dB PSNR** (+6.75 dB gain over standard bicubic baseline) and **0.934 SSIM**, with an average CPU inference latency of **161.9 ms per patch** and GPU streaming throughput of **70+ FPS**, preserving spatial georeferencing in 16-bit GeoTIFF exports.
+### Biophysical Vegetation Index (NDVI) Fidelity
+![NDVI Fidelity](assets/fig3_ndvi_biophysical_fidelity.png)
+*Figure 3: Pixel-wise correlation between ground-truth and super-resolved Normalized Difference Vegetation Index (NDVI) across 4,000 agricultural pixels ($R^2 = 0.898$). Preserving 4-channel surface reflectance maintains radiometric validity for downstream precision agriculture.*
+
+### Zero-Shot Cross-Sensor Generalization (Wald Protocol on USGS NAIP)
+![Cross-Sensor Evaluation](assets/fig4_cross_sensor_eval.png)
+*Figure 4: Zero-shot cross-sensor evaluation under the Wald protocol across five operational categories (LAX Airport, Downtown LA, MCAS Miramar Airbase, San Joaquin Valley, Port of LA Harbor).*
 
 ---
 
-## 🏛️ System Architecture
+## ?? Repository Structure
 
 ```
-                                      4-BAND MULTISPECTRAL INPUT TENSOR
-                                   x ∈ R^{B × 4 × H × W},  uint16 BOA Reflectance
-                                   [Band 4 (Red), Band 3 (Green), Band 2 (Blue), Band 8 (NIR)]
-                                                         │
-                                                         ▼
-                                       ┌───────────────────────────────────┐
-                                       │    SHALLOW FEATURE EXTRACTION     │
-                                       │     H_0 = Conv_{3×3}(x)           │  Output: C = 96 channels
-                                       └─────────────────┬─────────────────┘
-                                                         │
-                                                         ▼  ◄───────────────────────────────────┐
-                                       ┌───────────────────────────────────┐                    │
-                                       │ RESIDUAL HYBRID ATTENTION GROUPS  │                    │
-                                       │           (6x RHAG Blocks)        │                    │
-                                       │  ┌─────────────────────────────┐  │                    │
-                                       │  │  4x Hybrid Attention Blocks │  │                    │
-                                       │  │  (HAB) per Group:           │  │                    │
-                                       │  │  • Window MSA (W-MSA)       │  │                    │
-                                       │  │  • Shifted Window (SW-MSA)  │  │                    │
-                                       │  │  • DW-Conv FFN (3x3 local)  │  │                    │
-                                       │  │  • Rel. Position Bias (8x8) │  │                    │
-                                       │  └──────────────┬──────────────┘  │                    │
-                                       │                 ▼                 │                    │
-                                       │         Conv_{3×3} + Skip         │                    │
-                                       └─────────────────┬─────────────────┘                    │
-                                                         │                                      │
-                                                         ▼                                      │
-                                       ┌───────────────────────────────────┐                    │
-                                       │     DEEP FEATURE AGGREGATION      │                    │
-                                       │      H_DF = Conv_{1×1}(H_K)       │                    │
-                                       └─────────────────┬─────────────────┘                    │
-                                                         │                                      │
-                                                         ▼                                      │
-                                       ┌───────────────────────────────────┐                    │
-                                       │    GLOBAL RESIDUAL FUSION LAYER   │                    │
-                                       │      H_res = H_0 + H_DF           │ ───────────────────┘
-                                       └─────────────────┬─────────────────┘
-                                                         │  ◄── Scale Conditioning s ∈ R^+
-                                                         │      FiLM(γ, β) via Sinusoidal PE -> MLP
-                                                         ▼
-                                       ┌───────────────────────────────────┐
-                                       │    SUB-PIXEL RECONSTRUCTION HEAD  │
-                                       │   PixelShuffle_{s=4}(H_res)       │
-                                       │   + Zero-Init Conv Head W=0, b=0  │
-                                       └─────────────────┬─────────────────┘
-                                                         │
-                                                         ▼
-                                       ┌───────────────────────────────────┐
-                                       │    GLOBAL RESIDUAL ADDITION       │
-                                       │ ŷ = Bicubic(x, s) + F_θ(x, s)     │
-                                       └─────────────────┬─────────────────┘
-                                                         │
-                                                         ▼
-                                     4-BAND SUPER-RESOLVED OUTPUT TENSOR
-                                   ŷ ∈ R^{B × 4 × sH × sW},  2.5m Super-Resolved
+HAT-Light-Satellite-Super-Resolution/
++-- assets/                    # Publication figures & visual comparison previews
++-- benchmarks/                # Paper benchmark reproduction suite
+�   +-- ablations/             # Systematic component and loss function ablation runner
+�   �   +-- run_ablation.py
+�   �   +-- ablation_results.json
+�   �   +-- table_ablation.md
+�   +-- baselines/             # SOTA baseline architectures (EDSR, RCAN, SwinIR-Light)
+�   �   +-- edsr.py
+�   �   +-- rcan.py
+�   �   +-- swinir_light.py
+�   �   +-- train_baselines.py
+�   +-- cross_sensor/          # Zero-shot cross-sensor validation (USGS NAIP Wald protocol)
+�   �   +-- evaluate_cross_sensor.py
+�   �   +-- build_naip_cross_sensor_dataset.py
+�   �   +-- generate_clean_fig4.py
+�   �   +-- cross_sensor_results.json
+�   +-- evaluate_curated_test.py # Standalone 600-patch evaluation (HAT-Light vs Bicubic)
+�   +-- evaluate_all_models.py # Multi-model comparative benchmark harness
+�   +-- generate_paper_figures.py # Renderer for publication comparison figures
+�   +-- curated_test_evaluation.json # Precomputed 600-patch test metrics
+�   +-- comparative_results.json # Multi-model benchmark metrics
+�   +-- README.md
++-- core/                      # Deep learning engine & model architecture
+�   +-- hat_light.py           # HAT-Light Transformer backbone (W-MSA, SW-MSA, DW-FFN, FiLM)
+�   +-- losses.py              # Composite radiometric loss suite & evaluation metrics
+�   +-- dataset.py             # 4-band uint16 dataset loader & normalizer (on-the-fly downsampler)
+�   +-- trainer.py             # Supervisor for training with AMP FP16 & telemetry
+�   +-- infer.py               # Standalone CLI inference script
++-- pipeline/                  # Automated Copernicus Sentinel-2 dataset collection
+�   +-- cdse_client.py         # CDSE OData REST API client (OAuth2 streaming download)
+�   +-- build_dataset.py       # Multi-scene downloader across global AOIs
+�   +-- patch_extractor.py     # 4-band slicing with cloud & texture variance filters
+�   +-- prepare_splits.py      # Physical Point Spread Function (PSF) degradation & split creator
+�   +-- verify_dataset.py      # Quality verification & sample preview generator
+�   +-- .env.example           # CDSE credentials template
++-- studio/                    # Interactive Full-Stack Web Studio
+�   +-- backend/               # FastAPI backend with CRS geotransform & Hann-window tiling
+�   �   +-- server.py
+�   �   +-- multi_format_io.py
+�   �   +-- tiling_engine.py
+�   +-- frontend/              # React + Tailwind UI (with pre-compiled production dist/)
++-- test_dataset/              # 600 curated high-resolution test patches
+�   +-- HR/                    # 600 .npy uint16 4-channel patches (128x128)
+�   +-- sample_preview.png     # Multi-biome visual preview
+�   +-- README.md
++-- weights/                   # Pre-trained model weights
+�   +-- best_model.pth         # Official HAT-Light checkpoint (5.09M params, 58.4 MB)
+�   +-- README.md
++-- app.py                     # 1-Click zero-config Studio launcher
++-- train.py                   # Clean CLI training entrypoint
++-- run_app.bat                # Windows 1-click execution batch script
++-- requirements.txt           # Consolidated dependencies
++-- LICENSE                    # MIT Open-Source License
++-- CONTRIBUTING.md            # Guidelines for open-source contributors
++-- README.md                  # Main repository documentation
 ```
 
 ---
 
-<a id="introduction"></a>
-## 1. Introduction & Physical Motivation
+## ? Quickstart
 
-In passive optical Earth observation, spatial resolution is governed by the physical aperture of the satellite telescope, orbital altitude ($h \approx 786\text{ km}$ for Sentinel-2), and the detector sensor pitch. Under the Rayleigh diffraction criterion:
+### 1. Installation
 
-$$
-\theta_{\text{diff}} \approx 1.22 \frac{\lambda}{D}
-$$
+Clone the repository and install dependencies in a Python 3.10+ environment:
 
-where $\lambda$ represents observation wavelength ($490\text{ nm} - 842\text{ nm}$) and $D$ is the primary mirror aperture ($D \approx 0.15\text{ m}$ for Sentinel-2's Three-Mirror Anastigmat telescope). At an altitude of $786\text{ km}$, the diffraction-limited spot size physically prohibits resolving ground features smaller than 10 meters.
-
-```
-                 Native 10m Ground Sample                      HAT-Light 4x Super-Resolved
-                 (Optical Diffraction Limit)                    (Learned Non-Local Priors)
-                 ┌───┬───┬───┬───┐                              ┌─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┐
-                 │   │   │   │   │                              │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │ │
-                 ├───┼───┼───┼───┤                              ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤
-                 │   │███│███│   │   ──── Continuous 4x ───►    │ │█│█│█│█│█│█│█│█│█│█│█│█│█│█│ │
-                 ├───┼───┼───┼───┤          Synthesis           ├─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┤
-                 │   │███│███│   │       (10m -> 2.5m GSD)      │ │█│ │ │ │ │ │ │ │ │ │ │ │ │█│ │
-                 └───┴───┴───┴───┘                              └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘
-                   10m: Blurry Taxiway Blobs                      2.5m: Sharp Centerlines & Thresholds
-```
-
-### 1.1 The Ground-Truth Paradox & Two-Phase Inversion Paradigm
-
-Supervised deep learning for single-image super-resolution traditionally assumes paired observation targets $(\mathbf{X}, \mathbf{Y})$ across low- and high-resolution domains. In spaceborne Earth observation, this requirement confronts the **Ground-Truth Paradox**:
-
-> **The Ground-Truth Paradox**: No satellite sensor currently in orbit simultaneously captures Sentinel-2 multi-spectral bands at 2.5m GSD. Consequently, real paired $(10\text{m}, 2.5\text{m})$ training targets physically do not exist in nature.
-
-To overcome this fundamental data absence without hallucinating unphysical spectral artifacts, HAT-Light establishes a **self-supervised surrogate transfer methodology**:
-
-```
- ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
- │                                 PHASE 1: SURROGATE INVERSION TRAINING                            │
- │                                                                                                  │
- │  Native 10m L2A Granules (HR)       Point Spread Function Blur & 4x Decimation                   │
- │   Y_10m ∈ ℝ^{4 × 128 × 128}   ───►  X_40m = (Y_10m ⊛ k_PSF) ↓_4 ∈ ℝ^{4 × 32 × 32}                │
- │               ▲                                                    │                             │
- │               │                                                    ▼                             │
- │               └────────── Multi-Task Radiometric Loss ◄─── HAT-Light Backbone                     │
- │                             L_total(Ŷ_10m, Y_10m)          Ŷ_10m = F_Θ(X_40m, s=4)               │
- └──────────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                  │
-                                                  ▼ Parameter Transfer
- ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
- │                               PHASE 2: OPERATIONAL FORWARD INFERENCE                             │
- │                                                                                                  │
- │  Unobserved Native 10m Input        Zero-Shot Scale-Conditioned Inference     Novel 2.5m Product │
- │   X_10m ∈ ℝ^{4 × 128 × 128}   ───►        HAT-Light Backbone (F_Θ)        ───►  Ŷ_2.5m ∈ ℝ^{512}   │
- │   (Real satellite observation)               (Scale s = 4.0)                 (Synthesized data)  │
- └──────────────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
-#### Operational Lifecycle Comparison:
-
-| Operational Phase | Input Observation | Ground-Truth Reference | Output Tensor | Mathematical Objective |
-| :--- | :--- | :--- | :--- | :--- |
-| **Phase 1: Inversion Training** | Synthetically degraded $\mathbf{X}$ ($40\text{m}$ patch, $32 \times 32$) | Native Sentinel-2 $\mathbf{Y}$ ($10\text{m}$ granule, $128 \times 128$) | Reconstructed $\hat{\mathbf{Y}}$ ($10\text{m}$ patch, $128 \times 128$) | Supervised optimization of optical deconvolution and non-local spatial attention (**40.18 dB PSNR** on held-out test distribution). |
-| **Phase 2: Operational Inference** | Real-world native $\mathbf{X}$ ($10\text{m}$ granule, $128 \times 128$) | *Unobserved in physical nature* | Super-resolved $\hat{\mathbf{Y}}$ ($2.5\text{m}$ reflectance, $512 \times 512$) | Feedforward deployment applying learned physical priors to synthesize **novel 2.5m GSD imagery** with preserved radiometry. |
-
----
-
-### 1.2 Limitations of Prior Super-Resolution Paradigms
-
-1. **Classical Bicubic & Lanczos Interpolation**: Pure mathematical convolution functions assume local spatial continuity, smoothing away all high-frequency optical phase details and failing to reconstruct structural edges.
-2. **Convolutional Neural Networks (SRCNN, RCAN, EDSR)**: Rely on fixed, compact receptive fields. They cannot exploit long-range spatial self-similarity across large geospatial scenes (such as repetitive taxiway markings, agricultural center-pivot furrows, or parallel shipping containers).
-3. **Generative Adversarial Networks (SRGAN, ESRGAN)**: Introduce hallucinated, stochastic textures. In Earth observation, hallucinated high-frequency details violate physical conservation of energy and alter surface reflectance values, compromising radiometric downstream tasks like crop health modeling and water index extraction.
-4. **VGG / LPIPS Perceptual Losses**: Hardcoded strictly for 3-channel 8-bit dynamic range $[0, 255]$. Applying them to 4-channel 16-bit satellite data requires discarding the critical Near-Infrared (B08) band and quantizing physical surface reflectance, inducing severe spectral distortion.
-
----
-
-<a id="architecture"></a>
-## 2. Mathematical Formulation of HAT-Light
-
-### 2.1 Problem Formulation & Sensor Degradation Model
-
-Let $\mathbf{Y} \in \mathbb{R}^{4 \times H \times W}$ represent the latent ground-truth high-resolution 4-channel surface reflectance. The observed low-resolution satellite granule $\mathbf{X} \in \mathbb{R}^{4 \times (H/s) \times (W/s)}$ is physically modeled as:
-
-$$
-\mathbf{X} = (\mathbf{Y} \circledast \mathbf{k}_{\text{PSF}}) \downarrow_s + \mathbf{n}
-$$
-
-In this physical observation model:
-- $\mathbf{k}_{\text{PSF}}$ denotes the continuous optical sensor Point Spread Function, parameterized as an anisotropic Gaussian blur kernel with $\sigma \in [0.6, 1.4]$.
-- $\downarrow_s$ denotes spatial decimation by scaling factor $s = 4$ via antialiased bicubic downsampling.
-- $\mathbf{n} \sim \mathcal{N}(0, \sigma_n^2)$ represents detector readout noise.
-
-The objective of HAT-Light is to find the parameterized neural mapping $\mathcal{F}_\Theta: \mathbf{X} \to \hat{\mathbf{Y}}$ such that:
-
-$$
-\hat{\mathbf{Y}} \approx \mathbf{Y}
-$$
-
----
-
-### 2.2 Window Multi-Head Self-Attention (W-MSA)
-
-Given feature map $Z \in \mathbb{R}^{H \times W \times C}$, we partition $Z$ into non-overlapping windows of size $M \times M$ with $M = 8$. For each window, linear projections compute queries $Q$, keys $K$, and values $V$:
-
-$$
-Q = XW_Q, \quad K = XW_K, \quad V = XW_V, \quad W_Q, W_K, W_V \in \mathbb{R}^{C \times d_k}
-$$
-
-The self-attention matrix within each window is computed as:
-
-$$
-\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{QK^T}{\sqrt{d_k}} + B\right)V
-$$
-
-where $d_k = C / h = 96 / 8 = 12$, and $B \in \mathbb{R}^{M^2 \times M^2}$ represents the learnable **Relative Position Bias Matrix**. Because relative displacement along horizontal and vertical axes lies in $[-M+1, M-1]$, the bias is indexed from a compact parameter table $\hat{B} \in \mathbb{R}^{(2M-1) \times (2M-1)}$.
-
----
-
-### 2.3 Shifted Window Attention (SW-MSA) with Dynamic Batched Masking
-
-To introduce inter-window connections across adjacent partitions without incurring global computational cost, consecutive blocks shift the partition grid by $(\lfloor M/2 \rfloor, \lfloor M/2 \rfloor) = (4, 4)$ pixels. Cyclic shifting brings sub-windows together; a self-attention masking mechanism sets non-adjacent token attention weights to $-\infty$ prior to the softmax computation:
-
-$$
-\text{Masked Attention}(Q, K, V) = \text{Softmax}\left(\frac{QK^T}{\sqrt{d_k}} + B + \mathcal{M}\right)V
-$$
-
-where $\mathcal{M}_{i, j} = 0$ if tokens $i$ and $j$ belong to the same original contiguous sub-window, and $-\infty$ otherwise.
-
----
-
-### 2.4 Inductive Bias Restoration via Depthwise Convolutional FFN
-
-Pure self-attention lacks localized translational equivariance. HAT-Light addresses this by coupling self-attention with a **Depthwise Convolutional Feed-Forward Network (DW-FFN)**:
-
-$$
-\text{DW-FFN}(X) = W_2 \cdot \text{GELU}\Big(\text{DW-Conv}_{3\times3}\big(W_1 \cdot X + b_1\big)\Big) + b_2
-$$
-
-where $\text{DW-Conv}_{3\times3}$ applies spatial filtering independently per channel ($3 \times 3 \times C = 864$ parameters), introducing local spatial smoothness while Transformer attention captures global non-local associations.
-
----
-
-### 2.5 Continuous Scale Conditioning via Sinusoidal Embedding & FiLM
-
-Rather than binding network weights to a discrete scaling factor, HAT-Light accepts a continuous scale parameter $s \in \mathbb{R}^+$. The scalar $s$ is embedded via harmonic sinusoidal functions:
-
-$$
-\mathbf{e}(s) = \left[\sin\left(\frac{s}{10000^{2i/C}}\right), \cos\left(\frac{s}{10000^{2i/C}}\right)\right]_{i=0}^{C/2 - 1}
-$$
-
-The embedding passes through an MLP:
-
-$$
-\mathbf{v}(s) = \mathbf{W}_2 \text{GELU}(\mathbf{W}_1 \mathbf{e}(s) + \mathbf{b}_1) + \mathbf{b}_2
-$$
-
-Feature-wise Linear Modulation (**FiLM**) parameters $[\gamma(s), \beta(s)]$ modulate intermediate activations:
-
-$$
-\text{FiLM}(X; s) = \gamma(s) \odot X + \beta(s)
-$$
-
-> **Continuous Scale FiLM Conditioning**: Modulates scale dynamically with minimal parameter overhead. The 2-layer sinusoidal projection MLP introduces fewer than 4,800 parameters ($< 0.04\%$ of the total network parameter footprint), allowing a single unified model checkpoint to execute continuous arbitrary-scale magnification without requiring separate trained models per scaling factor.
-
----
-
-### 2.6 Global Residual Formulation & Zero-Initialization Guarantee
-
-$$
-\hat{\mathbf{Y}} = \mathcal{I}_{\text{Bicubic}}(\mathbf{X}, s) + \mathcal{F}_{\Theta}(\mathbf{X}, s)
-$$
-
-**Theorem (Zero-Residual Initialization)**:  
-Let the final convolutional projection layer ($W$<sub>out</sub>, $b$<sub>out</sub>) of the residual generator $\mathcal{F}_{\Theta}$ be initialized to zeros:
-
-$$
-W_{\text{out}} = \mathbf{0}, \quad b_{\text{out}} = \mathbf{0}
-$$
-
-Then at step $t = 0$:
-
-$$
-\mathcal{F}_{\Theta}(\mathbf{X}, s) = \mathbf{0} \implies \hat{\mathbf{Y}} = \mathcal{I}_{\text{Bicubic}}(\mathbf{X}, s)
-$$
-
-**Corollary**: Training begins strictly from a proven lower bound ($\text{PSNR} \ge 33.43\text{ dB}$). The network does not waste capacity reconstructing low-frequency energy; 100% of gradient updates optimize high-frequency structural recovery.
-
----
-
-<a id="loss-function"></a>
-## 3. Composite Multi-Task Radiometric Physical Loss Suite
-
-To satisfy radiometric conservation across all four spectral bands while guaranteeing edge sharpness, we formulate a composite physical objective:
-
-$$
-\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{Charbonnier}} + 0.10 \cdot \mathcal{L}_{\text{FFT}} + 0.05 \cdot \mathcal{L}_{\text{gradient}} + 0.02 \cdot \mathcal{L}_{\text{SAM}}
-$$
-
-```
-                                  4-Channel Predicted Surface Reflectance (SR)
-                                                        │
-         ┌────────────────────────┬─────────────────────┴───────────────┬────────────────────────┐
-         ▼                        ▼                                     ▼                        ▼
-  [Charbonnier L1]        [2D Real FFT Loss]                   [Spatial Gradient]         [Cosine SAM Loss]
- Smooth L1 metric         rFFT2 magnitude alignment            Sobel finite diff         Spectral angle cos(θ)
- Outlier-resistant to     Restores high-frequency              Preserves crisp tarmac    Zero radiometric or
- high-albedo metal roofs  spectral harmonics                   and parcel boundaries     chromatic distortion
-```
-
-### 3.1 Smooth Charbonnier Pixel Loss
-
-An outlier-resistant smooth $L_1$ formulation:
-
-$$
-\mathcal{L}_{\text{Charbonnier}}(\hat{\mathbf{Y}}, \mathbf{Y}) = \frac{1}{N} \sum_{i=1}^N \sqrt{(\hat{y}_i - y_i)^2 + \epsilon^2}, \quad \epsilon = 10^{-3}
-$$
-
-Unlike standard $L_2$ (MSE), which penalizes high-albedo reflections quadratically and blurs fine details, Charbonnier maintains linear asymptotic gradients for errors exceeding $\epsilon$, providing robust convergence on bright reflectors (aircraft fuselages, greenhouse glass).
-
----
-
-### 3.2 2D Real Fast Fourier Transform (rFFT) Spectral Loss
-
-$$
-\mathcal{L}_{\text{FFT}}(\hat{\mathbf{Y}}, \mathbf{Y}) = \frac{1}{N} \sum_{c=1}^4 \left\| \, |\mathcal{F}_{2D}(\hat{\mathbf{Y}}_c)| - |\mathcal{F}_{2D}(\mathbf{Y}_c)| \, \right\|_1
-$$
-
-where $\mathcal{F}_{2D}$ denotes the 2D real Fast Fourier Transform (`torch.fft.rfft2` with orthonormal normalization). Minimizing magnitude discrepancies in the 2D frequency spectrum enforces the recovery of high-frequency spatial harmonics that spatial L1 loss averages out.
-
----
-
-### 3.3 Spatial Gradient & Laplacian Edge Loss
-
-Computes first-order spatial gradients using 2D convolution filters along horizontal and vertical axes:
-
-$$
-\nabla_x = \begin{bmatrix} -1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix}, \quad \nabla_y = \begin{bmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix}
-$$
-
-$$
-\mathcal{L}_{\text{gradient}}(\hat{\mathbf{Y}}, \mathbf{Y}) = \frac{1}{N} \left( \|\nabla_x \hat{\mathbf{Y}} - \nabla_x \mathbf{Y}\|_1 + \|\nabla_y \hat{\mathbf{Y}} - \nabla_y \mathbf{Y}\|_1 \right)
-$$
-
-where these directional Sobel convolution operators penalize structural edge blurring along airport runway borders and shipping containers.
-
----
-
-### 3.4 Numerically Stable Convex Cosine SAM Loss
-
-Standard Spectral Angle Mapper computes spectral angle via the inverse cosine:
-
-$$
-\theta(\mathbf{u}, \mathbf{v}) = \arccos\left(\frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|_2 \|\mathbf{v}\|_2}\right)
-$$
-
-Because the derivative $\frac{d}{dz}\arccos(z) = -\frac{1}{\sqrt{1-z^2}}$ exhibits a singularity as $z \to 1$, FP16 mixed-precision training suffers from infinite gradient spikes. We propose a **Convex Cosine SAM Formulation**:
-
-$$
-\mathcal{L}_{\text{SAM}}(\hat{\mathbf{Y}}, \mathbf{Y}) = 1 - \frac{1}{H W} \sum_{p=1}^{HW} \frac{\sum_{c=1}^4 \hat{y}_{c, p} \cdot y_{c, p}}{\sqrt{\sum_{c=1}^4 \hat{y}_{c, p}^2} \cdot \sqrt{\sum_{c=1}^4 y_{c, p}^2} + \epsilon_{\text{stab}}}
-$$
-
-This loss is strictly convex, bounded in $[0, 2]$, possesses well-behaved gradients everywhere in $\mathbb{R}^4$, and guarantees exact multi-spectral vector conservation.
-
----
-
-<a id="hardware-engineering"></a>
-## 4. Constrained Hardware Systems Engineering (RTX 3050 6GB VRAM)
-
-Training deep Transformer backbones for super-resolution typically requires enterprise clusters ($8 \times \text{A100}$ 80GB). A central scientific contribution of this repository is demonstrating that **Transformer-based multi-spectral super-resolution can be converged from scratch on a consumer mobile GPU (NVIDIA RTX 3050 Laptop GPU, 6GB VRAM, 2048 CUDA cores, 192 GB/s bandwidth)** through careful memory lifecycle budgeting:
-
-```
-+---------------------------------------------------------------------------------+
-| NVIDIA GeForce RTX 3050 Laptop GPU (6.00 GB GDDR6)                              |
-| VRAM Allocation Budget During 100-Epoch HAT-Light Training                      |
-+---------------------------------------------------------------------------------+
-| [■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■□□□□□□□□□□] 4.91 GB / 6.00 GB   |
-|                                                                                 |
-|  1. Model Weights & AdamW States:           ~0.82 GB (1.42M Params FP32 Master) |
-|  2. FP16 Activation Tensors (AMP Autocast): ~2.45 GB (Halved vs FP32)          |
-|  3. Micro-Batch Gradient Buffers (B=16):    ~1.10 GB (Decoupled Macro-Batch)    |
-|  4. 2D Real FFT Workspace & CUDA Buffers:   ~0.54 GB (Orthonormal rFFT2)       |
-|  5. Operating Headroom / Driver Context:    ~1.09 GB (FREE / Zero OOM Buffer)   |
-+---------------------------------------------------------------------------------+
-```
-
-### 4.1 Algorithmic Attention Complexity Reduction
-
-| Architecture Paradigm | Computational Complexity | Attention Elements per $128 \times 128$ Patch | Peak VRAM Footprint | 6GB Feasibility |
-| :--- | :---: | :---: | :---: | :---: |
-| **Global ViT Attention** | $\mathcal{O}((HW)^2)$ | $2.68 \times 10^8$ ops / layer | $\approx 8.4\text{ GB}$ | ❌ **CUDA OOM on Batch Size 1** |
-| **HAT-Light Windowed Attention ($M=8$)** | $\mathcal{O}(M^2 HW)$ | **$1.05 \times 10^6$ ops / layer** | **$\approx 0.38\text{ GB}$** | ✅ **256x Reduction (Feasible)** |
-
----
-
-### 4.2 Native Mixed Precision (`torch.amp.autocast`) & Loss Scaling
-```python
-with torch.amp.autocast(device_type="cuda", dtype=torch.float16):
-    sr = self.model(lr, scale=self.scale)
-    loss_dict = self.criterion(sr, hr)
-    total_loss = loss_dict["total"] / self.grad_accum_steps
-
-self.scaler.scale(total_loss).backward()
-```
-- Halved activation memory footprint from $4.9\text{ GB}$ to $2.45\text{ GB}$.
-- Dynamic `GradScaler` shifts gradient exponents by $2^{16}$, avoiding FP16 underflow on multi-spectral gradient tails.
-
----
-
-### 4.3 Virtual Macro-Batching via Gradient Accumulation
-
-Decoupled physical micro-batch size (`batch_size` = 16 or 24) from mathematical optimization batch size (`effective_batch_size` = 32 or 48) over accumulation steps $K = 2$:
-
-$$
-\mathbf{g}_t = \frac{1}{K} \sum_{k=1}^K \nabla_\Theta \mathcal{L}_k
-$$
-
-This stabilizes AdamW second-moment estimates without exceeding the physical 6GB VRAM capacity.
-
----
-
-### 4.4 Zero-Allocation Memory Recycling
-`optimizer.zero_grad(set_to_none=True)` replaces gradient tensor allocations with `None` pointers rather than writing zero buffers, reclaiming $\approx 350\text{ MB}$ of VRAM per step.
-
----
-
-<a id="dataset"></a>
-## 5. Dataset Acquisition, Spatial Provenance & Curation Pipeline
-
-### 5.1 Ingestion Volume & Partitioning Strategy
-
-To train and rigorously benchmark the model without spatial data leakage, the dataset pipeline constructed a total corpus of **8,000 paired multi-spectral patches** ($128 \times 128 \times 4$ in 16-bit unsigned integer format), representing approximately **1.05 GB of uncompressed physical surface reflectance data**.
-
-```
-                           8,000 Curated 4-Channel Patches (128x128 uint16)
-                                                  │
-                 ┌────────────────────────────────┼────────────────────────────────┐
-                 ▼ (80%)                          ▼ (10%)                          ▼ (10%)
-            TRAIN SET                        VALIDATION SET                    FINAL TEST SET
-          6,400 Patches                       800 Patches                       799 Patches
-    (Spatial Augmentations)             (Checkpoint Tuning)              (Zero-Leakage Benchmark)
-```
-
-- **Training Split (80% / 6,400 patches)**: Utilized during the 100-epoch training loop with random spatial dihedral flips and 90-degree rotations.
-- **Validation Split (10% / 800 patches)**: Used for evaluation at each epoch to dynamically supervise early stopping and save optimal model checkpoints.
-- **Held-Out FinalTest Split (10% / 799 patches)**: An isolated, non-overlapping test set reserved strictly for reporting final benchmark metrics.
-
----
-
-### 5.2 Targeted Global Areas of Interest (16 AOIs across 6 Biomes)
-
-To prevent geographic bias and ensure generalization across diverse terrain, satellite granules were retrieved across **16 globally distributed Areas of Interest (AOIs)** spanning six distinct operational categories:
-
-| Operational Category | Target Name | Geographic Coordinates | Terrain & Morphological Description |
-| :--- | :--- | :---: | :--- |
-| **Military Base** | Norfolk Naval Station | $36.945^\circ\text{N}, -76.326^\circ\text{W}$ | Aircraft carriers, naval dry docks, complex waterfront cranes |
-| **Military Base** | Ramstein Air Base | $49.437^\circ\text{N}, 7.600^\circ\text{E}$ | Hardened aircraft shelters, military runways, forested perimeter |
-| **Military Base** | Nellis AFB Nevada | $36.236^\circ\text{N}, -115.034^\circ\text{W}$ | Desert flightlines, test range complexes, high-albedo arid soil |
-| **Military Base** | Hindon Air Force Station | $28.706^\circ\text{N}, 77.360^\circ\text{E}$ | Large military transport runways, hangars, urban buffer zones |
-| **Commercial Airport**| Frankfurt Airport | $50.037^\circ\text{N}, 8.562^\circ\text{E}$ | Intersecting dual runways, high-density terminals, road interchanges |
-| **Commercial Airport**| Dubai Al Maktoum | $24.896^\circ\text{N}, 55.161^\circ\text{E}$ | Massive desert logistics hub, parallel runways, taxiway networks |
-| **Commercial Airport**| Tokyo Haneda | $35.549^\circ\text{N}, 139.779^\circ\text{E}$ | Coastal reclaimed runways, Tokyo Bay shipping channels, port links |
-| **Mountain Outpost** | Siachen Ladakh Himalayas | $34.800^\circ\text{N}, 77.000^\circ\text{E}$ | Glacial moraines, jagged mountain ridges, extreme shadow/snow dynamic range |
-| **Mountain Outpost** | Mont Blanc Alps | $45.832^\circ\text{N}, 6.865^\circ\text{E}$ | High-relief alpine peaks, snow fields, crevasses, steep rock faces |
-| **Dense Urban** | New York City Manhattan | $40.712^\circ\text{N}, -74.006^\circ\text{W}$ | Regular rectangular street grids, high-rise building perimeters, bridges |
-| **Dense Urban** | Paris Metropolitan | $48.856^\circ\text{N}, 2.352^\circ\text{E}$ | Radial boulevards, historic architecture, Seine river corridor |
-| **Dense Urban** | New Delhi NCR | $28.613^\circ\text{N}, 77.209^\circ\text{E}$ | High-density urban sprawl, arterial ring roads, varied albedo rooftops |
-| **Vegetation Canopy** | Amazon Basin Manaus | $-3.119^\circ\text{S}, -60.021^\circ\text{W}$ | Dense tropical rainforest canopy, river meanders, high NIR absorption |
-| **Vegetation Canopy** | Iowa Agricultural Farmland| $42.030^\circ\text{N}, -93.581^\circ\text{W}$ | Orthogonal crop parcel boundaries, agricultural drainage grids |
-| **Strategic Maritime** | Suez Canal | $30.585^\circ\text{N}, 32.560^\circ\text{E}$ | Narrow shipping waterway, desert embankment contours, vessel convoys |
-| **Strategic Maritime** | San Francisco Bay | $37.819^\circ\text{N}, -122.478^\circ\text{W}$ | Coastal bluffs, suspension bridges, maritime shipping terminal docks |
-
----
-
-### 5.3 Automated Copernicus Ingestion Protocol
-
-Scenes were ingested using the automated `pipeline/cdse_client.py` and `pipeline/build_dataset.py` modules:
-1. **OData REST API Queries**: Connects directly to the Copernicus Data Space Ecosystem with OAuth2 token streaming.
-2. **Cloud Filtering**: Query parameters enforce `cloudCover <= 2.0%` to ensure optical clarity.
-3. **Band Selection**: Downloads native 10m Ground Sampling Distance products:
-   - Band 4 (Red, $\lambda_c = 665\text{ nm}$)
-   - Band 3 (Green, $\lambda_c = 560\text{ nm}$)
-   - Band 2 (Blue, $\lambda_c = 490\text{ nm}$)
-   - Band 8 (Near-Infrared, $\lambda_c = 842\text{ nm}$)
-
----
-
-### 5.4 Triple-Gate Quality Filtration Pipeline
-
-To guarantee that only information-rich patches enter the training corpus, the `pipeline/patch_extractor.py` engine subjects every candidate $128 \times 128$ window to three validation tests:
-1. **No-Data Rejection**: Rejects any patch containing satellite swath boundary pixels or nodata values ($\text{pixel} \le 0$).
-2. **Cloud Saturation Gate**: In Sentinel-2 L2A BOA reflectance, thick cloud tops saturate beyond $3,800$ (equivalent to $> 38\%$ physical surface reflectance). Any patch with significant pixel clusters $> 3,800$ across Visible channels is discarded.
-3. **Texture Variance Threshold**: To prevent the model from over-fitting to featureless open ocean or blank desert sand, the patch extractor computes the mean per-band standard deviation:
-
-$$
-\sigma_{\text{avg}} = \frac{1}{4} \sum_{c=1}^4 \text{std}(X_c)
-$$
-
-Patches with $\sigma_{\text{avg}} < 25.0$ are rejected, guaranteeing high informational entropy.
-
----
-
-### 5.5 Realistic Sensor Point Spread Function (PSF) Degradation
-
-Rather than using naive bicubic downsampling alone (which fails to represent true optical aberrations and atmospheric effects), the dataset pipeline (`pipeline/prepare_splits.py`) simulates realistic satellite imaging physics using a two-stage physical degradation process:
-
-1. **Optical Point Spread Function (PSF) Convolution**: High-Resolution (HR) 4-channel patches are first convolved depthwise across all spectral bands with an optical PSF Gaussian blur kernel ($\sigma \in [0.6, 1.4]$) to model telescope aperture diffraction, atmospheric turbulence, and optical crosstalk.
-2. **Antialiased Bicubic Downsampling**: The blurred radiance field is subsequently downsampled by a factor of $4\times$ ($128 \times 128 \to 32 \times 32$) using antialiased bicubic interpolation (`torch.nn.functional.interpolate` with `mode="bicubic"`, `antialias=True`) to model discrete detector pixel integration and spatial decimation.
-
-$$
-\mathbf{X}_{\text{LR}} = \Big(\mathbf{X}_{\text{HR}} \circledast \mathbf{k}_{\text{PSF}}\Big) \downarrow_{\text{bicubic}, \, s=4}
-$$
-
-A $7 \times 7$ 2D Gaussian Point Spread Function kernel is computed dynamically for each patch:
-
-$$
-\mathbf{k}_{\text{PSF}}(u, v) = \frac{1}{2\pi \sigma^2} \exp\left(-\frac{u^2 + v^2}{2\sigma^2}\right), \quad \sigma \sim \mathcal{U}(0.6, 1.4)
-$$
-
-The kernel is convolved depthwise across each of the 4 spectral channels independently prior to spatial decimation via antialiased bicubic interpolation, replicating real-world spaceborne sensor optics.
-
-![Dataset Patch Preview](test_dataset/sample_preview.png)
-*Figure 1: Representative multi-spectral sample patches extracted across diverse global AOIs showing True Color (RGB) and Color Infrared (CIR / False Color).*
-
----
-
-## 6. Radiometric Normalization
-
-In Sentinel-2 Level-2A products, Bottom-Of-Atmosphere (BOA) surface reflectance is quantified as 16-bit unsigned integers scaled by a factor of $10,000$ (such that a physical surface reflectance of $1.00$ corresponds to digital number $10,000$). Normalization is defined as:
-
-$$
-\mathbf{X}_{\text{norm}} = \text{clip}\left(\frac{\mathbf{X}_{\text{raw}}}{10000.0}, 0.0, 1.0\right)
-$$
-
-During inference, reconstructed FP32 tensors are denormalized back to native 16-bit representation:
-
-$$
-\mathbf{Y}_{\text{uint16}} = \text{round}\Big(\text{clip}(\hat{\mathbf{Y}}, 0.0, 1.0) \times 10000.0\Big).\text{astype}(\text{uint16})
-$$
-
----
-
-<a id="results"></a>
-## 7. Experimental Results & Quantitative Benchmarks
-
-Quantitative evaluation was performed across **799 curated multi-spectral test granules** drawn from diverse geographic landscapes (airports, naval bases, urban grids, ports, agricultural basins):
-
-| Metric | Bicubic Baseline | HAT-Light (Ours) | Net Improvement |
-| :--- | :---: | :---: | :---: |
-| **Overall 4-Band PSNR** | 33.43 dB | **40.18 dB** | **+6.75 dB** 🚀 |
-| **Red Band (B04) PSNR** | 35.80 dB | **43.10 dB** | **+7.30 dB** |
-| **Green Band (B03) PSNR** | 34.90 dB | **42.20 dB** | **+7.30 dB** |
-| **Blue Band (B02) PSNR** | 34.66 dB | **42.05 dB** | **+7.39 dB** |
-| **Near-Infrared (NIR B08) PSNR** | 32.20 dB | **38.64 dB** | **+6.44 dB** |
-| **Structural Similarity (SSIM)** | 0.8120 | **0.9340** | **+0.1220** |
-| **Mean Absolute Error (MAE)** | 0.0420 | **0.0120** | **-71.4% Error Reduction** |
-| **Frequency FFT Loss** | 0.0143 | **0.0074** | **-48.3% Spectral Deviation** |
-| **Spatial Gradient Edge Loss** | 0.0256 | **0.0208** | **-18.8% Discontinuity Error** |
-| **CPU Latency (Consumer Laptop)** | — | **161.9 ms / patch** | **Zero-GPU Ready** |
-| **GPU Streaming Latency (RTX 3050)**| — | **~14.2 ms / patch** | **Real-Time (70+ FPS)** |
-
----
-
-### 7.1 Multi-Biome Spatial Comparison (Sentinel-2 Test Split)
-
-![Multi-Biome Spatial Comparison](paper/figures/fig1_visual_comparison.png)
-*Figure 2: Visual comparison across Airport, City Grid, Military Base, and Agricultural Farmland on the held-out Sentinel-2 test split ($10\text{m} \to 2.5\text{m}$, Scale $4\times$) against Bicubic, EDSR, RCAN, and SwinIR-Light baselines across True Color (RGB) and Color Infrared (CIR).*
-
----
-
-### 7.2 1D Cross-Sectional Surface Reflectance Edge Profile
-
-![1D Edge Profile](paper/figures/fig2_transect_edge_profile.png)
-*Figure 3: 1D pixel intensity transect across an airport runway centerline threshold ($A \to B$). HAT-Light closely reproduces the steep, sharp step response of native high-resolution reference without artificial ringing or blur.*
-
----
-
-### 7.3 Biophysical Index Validation (NDVI Fidelity)
-
-$$
-\text{NDVI} = \frac{\text{B08} - \text{B04}}{\text{B08} + \text{B04}}, \quad \text{NDWI} = \frac{\text{B03} - \text{B08}}{\text{B03} + \text{B08}}
-$$
-
-![Biophysical Index Validation](paper/figures/fig3_ndvi_biophysical_fidelity.png)
-*Figure 4: Pixel-wise correlation between ground-truth and super-resolved Normalized Difference Vegetation Index (NDVI) across 4,000 agricultural pixels ($R^2 = 0.898$). Because HAT-Light trains directly on 4-channel surface reflectance without RGB color-space reduction, NDVI calculated from super-resolved imagery maintains high radiometric integrity for precision agricultural yield modeling.*
-
----
-
-### 7.4 Zero-Shot Cross-Sensor Generalization (Wald Protocol on USGS NAIP 2.5m)
-
-![Cross-Sensor Generalization](paper/figures/fig4_cross_sensor_eval.png)
-*Figure 5: Zero-shot cross-sensor evaluation under the Wald protocol across five operational categories (LAX Airport, Downtown LA Grid, MCAS Miramar Airbase, San Joaquin Farmland, Port of LA Harbor). Insets highlight reconstructed infrastructure lineaments.*
-
-<a id="tiling-engine"></a>
-## 8. Seamless 2D Hann-Window Sliding Tiling Engine
-
-Full Sentinel-2 Level-2A granules span $10,980 \times 10,980$ pixels. Processing full scenes in a single forward pass would cause an out-of-memory fault. HAT-Light implements a **2D Separable Hann-Window Cosine Blending Engine**:
-
-$$
-w(x, y) = \sin^2\left(\frac{\pi x}{W-1}\right) \cdot \sin^2\left(\frac{\pi y}{H-1}\right), \quad x \in [0, W-1], y \in [0, H-1]
-$$
-
-Overlapping patches are accumulated into an output buffer and normalized by the accumulated weight matrix:
-
-$$
-\hat{\mathbf{Y}}_{\text{scene}} = \frac{\sum_k w_k \odot \hat{\mathbf{Y}}_k}{\sum_k w_k + \epsilon}
-$$
-
-This completely eliminates seamline discontinuities, blocking artifacts, and boundary brightness steps.
-
----
-
-### 8.1 Sub-Pixel Affine Geotransform & Spatial CRS Preservation
-
-Unlike computer vision super-resolution that discards world coordinates, geospatial workflows require zero spatial drift. When exporting super-resolved rasters in GeoTIFF format (`studio/backend/multi_format_io.py`), HAT-Light updates the raster's 6-parameter affine transform matrix ($\mathcal{A}$):
-
-$$
-\mathcal{A}_{\text{SR}} = \begin{bmatrix} a / s & b & c \\ d & e / s & f \end{bmatrix}
-$$
-
-where pixel pitch parameters $a$ (easting pixel size) and $e$ (northing pixel size) are scaled down by factor $s = 4.0$ ($10\text{m} \to 2.5\text{m}$), while ground origin coordinates $(c, f)$, projection bounds, and Coordinate Reference System (CRS / EPSG code) remain mathematically anchored. Outputs can be loaded directly into QGIS, ArcGIS, or GDAL with millimeter-level georeferencing precision.
-
----
-
-### 8.2 16-Bit Photometric Reflectance Conservation (0 – 10,000 DN)
-
-Commercial super-resolution algorithms quantize imagery into 8-bit dynamic range $[0, 255]$, discarding physical calibration. HAT-Light processes Sentinel-2 Level-2A surface reflectance in its native 16-bit unsigned integer range ($0 - 10,000\text{ DN}$, corresponding to $0.0 - 1.0$ BOA reflectance). By preserving the true dynamic range without dynamic range compression:
-- Downstream spectral indices (NDVI, NDWI, EVI, SAVI) retain absolute physical validity.
-- High-reflectance urban materials, runway markings, and solar glare retain radiometric linearity without clipping or saturation.
-
----
-
-<a id="quickstart"></a>
-## 9. Geospatial Inference Studio & Quickstart
-
-### Method 1: Zero-Config Studio Launcher (1-Click)
-- **Windows**: Double-click `run_app.bat`.
-- **Python CLI**:
 ```bash
-# 1. Install dependencies
+git clone https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution.git
+cd HAT-Light-Satellite-Super-Resolution
+
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
-
-# 2. Launch the studio (starts server & opens browser)
-python app.py
 ```
-> The studio initializes on **`http://localhost:8000`** with real-time comparison sliders, high-frequency difference heatmaps, dual spectral modes (RGB & CIR), and format-preserving GeoTIFF exports.
 
-### Method 2: Standalone Python Inference Script
+### 2. 1-Click Interactive Web Inference Studio
+
+Launch the full-stack web studio with real-time split-screen sliders, difference heatmaps, CIR/RGB composites, and GeoTIFF exports:
+
+- **Windows:** Double-click `run_app.bat` or run:
+  ```bash
+  python app.py
+  ```
+- **Linux/macOS:** Run:
+  ```bash
+  python app.py
+  ```
+The studio automatically launches at **`http://localhost:8000`** with the pre-compiled frontend and loads the pre-trained `weights/best_model.pth` checkpoint.
+
+### 3. Python API Inference
+
+Super-resolve any 4-channel Sentinel-2 patch programmatically:
+
 ```python
 import torch
 import numpy as np
 from core.hat_light import HATLightSR
 from core.dataset import normalize_patch, denormalize_patch
 
-# 1. Initialize architecture and load pre-trained weights
+# 1. Initialize model and load checkpoint
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-model = HATLightSR(
-    in_channels=4, out_channels=4, scale=4.0,
-    embed_dim=96, num_rhag=6, num_hab_per_rhag=4,
-    num_heads=8, window_size=8
-).to(device)
+model = HATLightSR(in_channels=4, out_channels=4, scale=4.0).to(device)
 
 ckpt = torch.load("weights/best_model.pth", map_location=device, weights_only=False)
 model.load_state_dict(ckpt.get("model_state", ckpt), strict=True)
 model.eval()
 
-# 2. Ingest real-world native 10m Sentinel-2 patch (B04 Red, B03 Green, B02 Blue, B08 NIR)
-# Input: (4, 128, 128) uint16 BOA reflectance at native 10m Ground Sampling Distance
-raw_patch = np.load("test_dataset/HR/patch_airport_001428.npy")
-tensor = normalize_patch(raw_patch).unsqueeze(0).to(device)
+# 2. Ingest 4-band uint16 Sentinel-2 patch [B04 Red, B03 Green, B02 Blue, B08 NIR]
+raw_patch = np.load("test_dataset/HR/patch_airport_001428.npy")  # Shape: (4, 128, 128)
+tensor = torch.from_numpy(normalize_patch(raw_patch)).unsqueeze(0).to(device)
 
-# 3. Super-resolve (4x scale: native 10m -> unprecedented 2.5m GSD)
+# 3. Super-resolve (4x continuous magnification: 10m -> 2.5m GSD)
 with torch.no_grad():
-    sr_tensor = model(tensor)
+    sr_tensor = model(tensor, scale=4.0)
 
-# 4. Denormalize to uint16 BOA reflectance
+# 4. Denormalize to native 16-bit surface reflectance
 sr_patch = denormalize_patch(sr_tensor.squeeze(0).cpu())
 print(f"Input Resolution:  10m GSD | Shape: {raw_patch.shape}")
 print(f"Output Resolution: 2.5m GSD | Shape: {sr_patch.shape}, Dtype: {sr_patch.dtype}")
-# Synthesized Output: (4, 512, 512), dtype: uint16 (Novel high-resolution 2.5m multi-spectral data)
+# Output: (4, 512, 512) uint16
 ```
 
 ---
 
-## 📁 Repository Structure
+## ??? Reproducing Paper Benchmarks
 
+All quantitative results, ablations, and figures presented in the research paper can be reproduced with a single command:
+
+### 1. Curated 600-Patch Test Benchmark (Table I)
+Evaluates HAT-Light against the Bicubic baseline across all 600 curated test patches:
+```bash
+python benchmarks/evaluate_curated_test.py
 ```
-HAT-Light-Satellite-Super-Resolution/
-├── app.py                         # 1-Click zero-config studio launcher
-├── run_app.bat                    # Windows 1-click execution batch script
-├── requirements.txt               # Consolidated dependencies (PyTorch, FastAPI, Rasterio)
-├── LICENSE                        # MIT Open-Source License
-├── CONTRIBUTING.md                # Open-source community guidelines
-├── .gitattributes                 # Git LFS pointer for *.pth model weights
-│
-├── core/                          # Deep learning model & training engine
-│   ├── hat_light.py               # Hybrid Attention Transformer (W-MSA, SW-MSA, DW-FFN, FiLM)
-│   ├── losses.py                  # Composite Loss (Charbonnier + FFT + Gradient + Cosine SAM)
-│   ├── dataset.py                 # uint16 BOA reflectance normalizer & PyTorch dataset
-│   ├── infer.py                   # Standalone CLI batch inference script
-│   └── trainer.py                 # Full 100-Epoch training supervisor with AMP & telemetry
-│
-├── paper/                         # 📄 Paper Reference Hub & Publication Figures
-│   ├── README.md                  # Paper specification, abstract, DOI badges, BibTeX
-│   └── figures/                   # 300 DPI publication figures (Figs 1–4)
-│
-├── weights/                       # ⚖️ Git LFS-tracked Pretrained Model Weights
-│   ├── best_model.pth             # Official HAT-Light Checkpoint (5.09M params, 58.4 MB)
-│   └── README.md                  # Model weights documentation & baseline release guide
-│
-├── baselines/                     # 🏛️ Multi-Spectral SOTA Baseline Implementations
-│   ├── edsr.py                    # 4-channel adapted EDSR (Lim et al.)
-│   ├── rcan.py                    # 4-channel adapted RCAN (Zhang et al.)
-│   ├── swinir_light.py            # 4-channel adapted SwinIR-Light (Liang et al.)
-│   └── train_baselines.py         # Standardized baseline training pipeline
-│
-├── benchmarks/                    # 📊 Benchmark Evaluation Harness (Table I & Figs 1–3)
-│   ├── evaluate_all_models.py     # Automated multi-model evaluation harness (PSNR, SSIM, SAM, ERGAS)
-│   ├── generate_paper_figures.py  # High-DPI visualization generator for publication figures
-│   ├── comparative_results.json   # Benchmark metrics across all models
-│   ├── table_comparative_results.md # Markdown benchmark summary
-│   └── README.md                  # Benchmark instructions & reproduction guide
-│
-├── ablations/                     # 🔬 Component & Loss Ablation Suite (Table II)
-│   ├── run_ablation.py            # Systematic loss and FFN ablation runner
-│   ├── ablation_results.json      # Numerical ablation metrics
-│   ├── table_ablation.md          # Markdown ablation table
-│   └── README.md                  # Scientific ablation analysis & reproduction guide
-│
-├── cross_sensor/                  # 🌍 Zero-Shot Cross-Sensor Validation (Table III & Fig 4)
-│   ├── extract_targeted_naip.py   # USGS NAIP 2.5m 4-band extractor (5 biomes)
-│   ├── build_naip_cross_sensor_dataset.py # Wald protocol degradation builder
-│   ├── evaluate_cross_sensor.py   # Zero-shot cross-sensor evaluation script
-│   ├── generate_clean_fig4.py     # High-resolution Fig. 4 visual grid generator
-│   ├── cross_sensor_results.json  # Cross-sensor numerical metrics
-│   └── README.md                  # Wald protocol methodology & results
-│
-├── pipeline/                      # Copernicus Sentinel-2 automated ingestion
-│   ├── cdse_client.py             # CDSE OData REST API client (OAuth2, streaming download)
-│   ├── patch_extractor.py         # 4-band slicing with cloud & variance filtration
-│   ├── build_dataset.py           # Multi-scene downloader across diverse global AOIs
-│   ├── prepare_splits.py          # Physical Point Spread Function (PSF) degradation
-│   ├── verify_dataset.py          # Quality verification & preview generator
-│   └── README.md                  # Data pipeline documentation
-│
-├── studio/                        # Interactive Full-Stack Web Studio
-│   ├── backend/
-│   │   ├── server.py              # FastAPI server (CPU/GPU zero-shot execution)
-│   │   ├── multi_format_io.py     # GeoTIFF (CRS-aware), NumPy, PNG, JPG I/O
-│   │   └── tiling_engine.py       # 2D Hann-window sliding tiling for gigapixel rasters
-│   └── frontend/
-│       ├── src/                   # React + Tailwind + Lucide UI source
-│       └── dist/                  # Pre-compiled high-performance production build
-│
-└── test_dataset/                  # 🧪 600 curated multi-spectral evaluation test patches
-    ├── HR/                        # Ground truth 4-channel uint16 test patches (128x128)
-    ├── LR/                        # Degraded 4-channel uint16 test patches (32x32)
-    ├── sample_preview.png         # Multi-biome visual sample preview
-    └── README.md                  # Test dataset specifications & loading guide
+*Output: Computes exact PSNR (overall and per band), SSIM, SAM ($^\circ$), ERGAS, and MAE, writing results to `benchmarks/curated_test_evaluation.json`.*
+
+### 2. Multi-Model Comparative Benchmark (Table I)
+Evaluates all architectures (Bicubic, EDSR, RCAN, SwinIR-Light, HAT-Light):
+```bash
+python benchmarks/evaluate_all_models.py
+```
+
+### 3. Component & Loss Function Ablation Study (Table II)
+Runs the systematic ablation matrix across physical loss terms ($\mathcal{L}_{\text{SAM}}$, $\mathcal{L}_{\text{FFT}}$, $\mathcal{L}_{\text{grad}}$) and architectural modules (DW-FFN, FiLM):
+```bash
+python benchmarks/ablations/run_ablation.py
+```
+*Output: Generates `benchmarks/ablations/ablation_results.json` and `benchmarks/ablations/table_ablation.md`.*
+
+### 4. Zero-Shot Cross-Sensor Validation under Wald Protocol (Table III)
+Runs zero-shot cross-sensor evaluation on 100 genuine USGS NAIP 2.5m multi-spectral patches:
+```bash
+python benchmarks/cross_sensor/evaluate_cross_sensor.py
+```
+
+### 5. Generate Publication Figures (Figures 1�4)
+Renders high-DPI paper figures into `assets/`:
+```bash
+python benchmarks/generate_paper_figures.py
+python benchmarks/cross_sensor/generate_clean_fig4.py
 ```
 
 ---
 
-## 🏷️ Attribution & Citation
+## ??? Dataset Collection & Processing Pipeline (`pipeline/`)
 
-This project is fully open source under the MIT License. **If you use, adapt, or reference this codebase, model architecture, pre-trained weights, or benchmark dataset in your own research, student projects, academic coursework, or applications, please provide credit by citing and linking back to this repository:**
+The `pipeline/` directory contains complete, automated tooling to acquire and curate multi-spectral Sentinel-2 datasets directly from the **Copernicus Data Space Ecosystem (CDSE)**:
 
-### Quick Markdown Attribution
-> **Super-Resolution Model & Pipeline**: [HAT-Light: Hybrid Attention Transformers for Satellite Imagery](https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution) by [Naman S.](https://github.com/namans0071-code)
+```bash
+cd pipeline
 
-### BibTeX Citation
+# 1. Configure CDSE credentials in .env
+cp .env.example .env
+# Edit .env with your CDSE credentials
+
+# 2. Query and download Sentinel-2 Level-2A granules across global AOIs
+python build_dataset.py
+
+# 3. Extract 4-channel patches with cloud saturation & texture variance filtering
+python patch_extractor.py
+
+# 4. Generate PSF degradation and prepare splits
+python prepare_splits.py
+
+# 5. Verify quality and generate visual previews
+python verify_dataset.py
+```
+
+---
+
+## ??? Training HAT-Light (`train.py`)
+
+Train HAT-Light from scratch or fine-tune on custom multi-spectral satellite imagery using the top-level training script:
+
+```bash
+# Basic training with default hyperparameters (100 epochs, 4x scale)
+python train.py --data-dir path/to/Train --val-dir path/to/Val --epochs 100 --batch-size 16 --scale 4.0
+
+# Constrained hardware training (optimised for 6GB VRAM GPUs)
+python train.py --data-dir path/to/Train --batch-size 16 --grad-accum 2 --lr 2e-4 --output-dir weights
+```
+
+### Key Training Options:
+- `--scale`: Super-resolution factor (default: `4.0`).
+- `--batch-size`: Micro-batch size per step (default: `16`).
+- `--grad-accum`: Virtual macro-batching steps (default: `2`).
+- `--embed-dim`: Transformer embedding dimension (default: `96`).
+- `--num-rhag`: Number of Residual Hybrid Attention Groups (default: `6`).
+- `--num-hab`: Hybrid Attention Blocks per RHAG (default: `4`).
+
+---
+
+## ?? Pre-trained Model Weights
+
+The official trained checkpoint is tracked via Git LFS at [`weights/best_model.pth`](weights/best_model.pth):
+- **Parameters:** 5.09M (58.4 MB)
+- **Input/Output:** 4 channels (Red, Green, Blue, NIR)
+- **Dynamic Range:** 16-bit uint16 ($0 - 10,000$ BOA reflectance)
+- **Scale:** Continuous arbitrary scale ($s \in \mathbb{R}^+$, benchmarked at $4.0\times$)
+
+---
+
+## ?? Citation & Attribution
+
+If you use this codebase, model architecture, pre-trained weights, or benchmark dataset in your research or applications, please cite:
+
 ```bibtex
-@misc{hatlight_satellite_sr_2026,
-  author={Naman S.},
-  title={Hybrid Attention Transformers for 4-Channel Multi-Spectral Satellite Imagery Super-Resolution (HAT-Light)},
+@article{sharma2026hatlight,
+  title={Continuous Multi-Spectral Satellite Super-Resolution via Hybrid Attention Transformers and Radiometric Physical Constraints},
+  author={Sharma, Naman},
+  journal={IEEE Geoscience and Remote Sensing Letters},
   year={2026},
-  publisher={GitHub},
-  howpublished={\url{https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution}},
-  note={Open-Source Satellite Super-Resolution for Sentinel-2 Optical and Near-Infrared Imagery}
+  note={Under Review; Preprint: arXiv:2609.xxxxx},
+  url={https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution}
 }
 ```
 
 ---
 
-## 📜 License & Usage Policy
+## ?? License
 
-This project is licensed under the **[MIT License](LICENSE)**:
-- **Open for Research & Applications**: Completely free to use, modify, fork, and distribute.
-- **Attribution Required**: As specified under the MIT License and standard academic/open-source conventions, you are kindly required to preserve the original license and include attribution/credit back to this repository in any derived works or publications.
+This project is licensed under the **[MIT License](LICENSE)**: completely free for academic research, education, and commercial applications.

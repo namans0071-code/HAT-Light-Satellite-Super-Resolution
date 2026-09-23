@@ -1,4 +1,4 @@
-﻿# 📊 Comparative Benchmarks & Evaluation Suite
+# 📊 Comparative Benchmarks & Evaluation Suite
 
 This directory contains the comparative evaluation harness, metric logs, and figure generation scripts for Table I and Figures 1–3 of our research paper:
 
@@ -28,29 +28,51 @@ Evaluated across all 600 held-out Sentinel-2 test patches (4 channels: B04 Red, 
 
 ## 🚀 Reproducing Benchmark Numbers
 
-### 1. Run Full Evaluation Harness
-To compute PSNR, SSIM, SAM, and ERGAS across all 600 test patches:
+### 1. Run Curated Test Evaluation (HAT-Light vs Bicubic)
+To compute PSNR, SSIM, SAM, ERGAS, and per-band metrics on the 600 curated test patches:
+```bash
+python benchmarks/evaluate_curated_test.py
+```
+
+### 2. Run Master Comparative Benchmark (All Models)
+To evaluate all models (Bicubic, EDSR, RCAN, SwinIR-Light, HAT-Light):
 ```bash
 python benchmarks/evaluate_all_models.py
 ```
-*Note: Evaluates Bicubic and HAT-Light automatically using `weights/best_model.pth`. If you wish to re-evaluate the baseline models (EDSR, RCAN, SwinIR), place their `.pth` checkpoints in `weights/` or retrain them using `baselines/train_baselines.py`.*
+*Note: Evaluates Bicubic and HAT-Light automatically using `weights/best_model.pth`. If baseline checkpoints are placed in `weights/`, they are benchmarked in parallel.*
 
-### 2. Generate Publication Figures (Figures 1–3)
-To render high-DPI paper figures directly into `paper/figures/`:
+### 3. Run Component & Loss Ablations
+To isolate each loss function and architectural component:
+```bash
+python benchmarks/ablations/run_ablation.py
+```
+
+### 4. Run Zero-Shot Cross-Sensor Validation (USGS NAIP)
+To evaluate out-of-distribution transfer under the Wald protocol:
+```bash
+python benchmarks/cross_sensor/evaluate_cross_sensor.py
+```
+
+### 5. Generate Benchmark Figures
+To render publication-quality figures directly into `assets/`:
 ```bash
 python benchmarks/generate_paper_figures.py
 ```
 This generates:
-- `fig1_visual_comparison.png`: Multi-biome qualitative spatial grids (True Color & CIR).
-- `fig2_transect_edge_profile.png`: 1D pixel reflectance transect across high-contrast airport runway lineaments.
-- `fig3_ndvi_biophysical_fidelity.png`: Pixel-by-pixel NDVI correlation scatter plot ($R^2 = 0.898$).
+- `assets/fig1_visual_comparison.png`: Multi-biome qualitative spatial grids (True Color & CIR).
+- `assets/fig2_transect_edge_profile.png`: 1D pixel reflectance transect across runway lineaments.
+- `assets/fig3_ndvi_biophysical_fidelity.png`: Pixel-by-pixel NDVI correlation scatter plot ($R^2 = 0.898$).
 
 ---
 
-## 📁 Directory Files
+## 📁 Benchmarks Directory Structure
 
-- `evaluate_all_models.py`: Automated multi-model evaluation harness.
-- `generate_paper_figures.py`: Generates publication-ready figures for LaTeX.
-- `comparative_results.json`: JSON output containing per-band metrics for all architectures.
-- `table_comparative_results.md`: Standalone markdown table for documentation.
-- `table_comparative_results.tex`: LaTeX table directly importable into manuscripts.
+- `evaluate_curated_test.py`: Standalone 600-patch test evaluation script.
+- `evaluate_all_models.py`: Automated multi-model comparative evaluation harness.
+- `generate_paper_figures.py`: Publication figure renderer.
+- `baselines/`: Implementations of EDSR, RCAN, SwinIR-Light, and baseline training script.
+- `ablations/`: Systematic ablation study runner, numerical results, and summary table.
+- `cross_sensor/`: Wald protocol cross-sensor evaluation on USGS NAIP 2.5m data.
+- `curated_test_evaluation.json`: Numerical results on the 600 test patches.
+- `comparative_results.json`: Per-band comparative metrics across all architectures.
+- `table_comparative_results.md`: Markdown summary table.

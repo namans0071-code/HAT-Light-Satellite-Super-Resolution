@@ -17,21 +17,20 @@ This directory stores the trained model checkpoint for the HAT-Light 4-channel s
   - `num_heads`: 8
   - `window_size`: 8
 
-## Benchmark Performance on 799 Multi-Spectral Test Patches
+## Benchmark Performance on 600 Curated Test Patches
 
 | Metric | Bicubic Baseline | HAT-Light | Delta |
 | :--- | :---: | :---: | :---: |
-| **Overall PSNR** | 33.43 dB | **40.18 dB** | **+6.75 dB** |
-| **RGB Bands PSNR** | 35.12 dB | **42.45 dB** | **+7.33 dB** |
-| **NIR Band PSNR** | 32.20 dB | **38.64 dB** | **+6.44 dB** |
-| **SSIM** | 0.812 | **0.934** | **+0.122** |
-| **MAE** | 0.042 | **0.012** | **-71.4%** |
+| **Overall PSNR** | 32.23 dB | **33.48 dB** | **+1.25 dB** |
+| **SSIM** | 0.8673 | **0.9048** | **+0.0375** |
+| **SAM ($^\circ$)** | 1.68$^\circ$ | **1.37$^\circ$** | **-0.31$^\circ$** |
+| **ERGAS** | 2.18 | **1.89** | **-0.29** |
 
 ## Comparative Baseline Weights Note
 
 To maintain repository focus and adhere to Git LFS bandwidth best practices, this directory contains exclusively the official **HAT-Light** model checkpoint (`best_model.pth`). 
 
-Baseline architectures (EDSR, RCAN, SwinIR-Light) evaluated in Table I of our research paper can be retrained directly via `src/baseline_models.py` or downloaded as release assets from the [GitHub Releases page](https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution/releases). If downloaded, place `edsr_best.pth`, `rcan_best.pth`, and `swinir_light_best.pth` in this directory to evaluate them with `python benchmarks/evaluate_all_models.py`.
+Baseline architectures (EDSR, RCAN, SwinIR-Light) evaluated in Table I of our research paper can be retrained directly via `benchmarks/baselines/train_baselines.py` or downloaded as release assets from the [GitHub Releases page](https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution/releases). If downloaded, place `edsr_best.pth`, `rcan_best.pth`, and `swinir_light_best.pth` in this directory to evaluate them with `python benchmarks/evaluate_all_models.py`.
 
 ## Git LFS Note
 
