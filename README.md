@@ -276,6 +276,23 @@ See [weights/README.md](weights/README.md) for model dictionary structure and lo
 
 ---
 
+## Citation
+
+If you use this codebase, the model architecture, the curated benchmark dataset, or the pre-trained weights in your research, please cite:
+
+```bibtex
+@article{sharma2026hatlight,
+  title={Continuous Multi-Spectral Satellite Super-Resolution via Hybrid Attention Transformers and Radiometric Physical Constraints},
+  author={Sharma, Naman},
+  journal={engrXiv preprint},
+  year={2026},
+  doi={10.31224/xxxxx}
+}
+```
+
+---
+
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- **Codebase:** Licensed under the [MIT License](LICENSE).
+- **Curated Dataset & Pre-trained Weights:** Licensed under the Creative Commons Attribution 4.0 International License ([CC-BY 4.0](LICENSE)).
