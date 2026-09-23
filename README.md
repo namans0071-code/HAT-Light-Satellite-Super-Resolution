@@ -24,11 +24,6 @@ HAT-Light trained purely on Sentinel-2 spaceborne imagery generalizes zero-shot 
 
 ## Visual Reconstructions on Sentinel-2
 
-### Multi-Scene Visual Comparison
-Comparison of 4x super-resolution performance across diverse scenes (urban structures, agriculture, coastal water bodies, and airport infrastructure):
-
-![Visual Comparison across diverse scenes](assets/fig1_visual_comparison.png)
-
 ### Edge Profile & High-Frequency Detail Preservation
 Spatial transect intensity profile demonstrating edge sharpness and reduction of blurring artifacts along structural boundaries:
 
