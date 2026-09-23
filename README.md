@@ -4,7 +4,13 @@ PyTorch implementation of **HAT-Light** (Hybrid Attention Transformer for Satell
 
 ---
 
-## Quantitative Benchmark Results (Sentinel-2)
+## Zero-Shot Cross-Sensor Generalization (Hero Evaluation)
+
+HAT-Light trained purely on Sentinel-2 spaceborne imagery generalizes zero-shot to authentic airborne **USGS National Agriculture Imagery Program (NAIP)** high-resolution multi-spectral imagery under the Wald protocol:
+
+![Zero-Shot Cross-Sensor Generalization on USGS NAIP](assets/fig4_cross_sensor_eval.png)
+
+### Quantitative Benchmark Results (Sentinel-2)
 
 Evaluated across the 600 held-out Sentinel-2 test patches (4 channels: B04 Red, B03 Green, B02 Blue, B08 NIR) at 4x super-resolution ($10\text{m} \to 2.5\text{m}$ GSD):
 
@@ -15,27 +21,6 @@ Evaluated across the 600 held-out Sentinel-2 test patches (4 channels: B04 Red, 
 | **RCAN** | 3.89 | 32.77 | 37.11 | 38.74 | 40.07 | 27.87 | 0.8801 | 1.59 | 1.71 |
 | **SwinIR-Light** | 6.49 | 32.73 | 37.10 | 38.73 | 40.06 | 27.83 | 0.8795 | 1.60 | 1.72 |
 | **HAT-Light (Ours)** | **12.71** | **33.48** | **39.62** | **40.39** | **42.07** | **28.22** | **0.9048** | **1.37** | **1.45** |
-
-### Component Ablation Results
-
-Ablation results on the test split when disabling individual loss components and architectural modules:
-
-| Configuration / Variant | Objective / Module | PSNR (dB) | SSIM | SAM (deg) | ERGAS | Effect / Impact |
-| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Full Proposed (HAT-Light)** | L1 + FFT + Grad + SAM + DW-FFN | **33.48** | **0.9048** | **1.37** | **1.45** | Full synergistic system |
-| **w/o Cosine SAM Loss** | L1 + FFT + Grad | 33.26 | 0.9006 | 1.56 | 1.56 | Increases spectral/chromatic distortion |
-| **w/o 2D FFT Spectral Loss** | L1 + Grad + SAM | 33.12 | 0.8970 | 1.45 | 1.61 | Loss of high-frequency periodic harmonics |
-| **w/o Spatial Gradient Loss** | L1 + FFT + SAM | 33.19 | 0.8987 | 1.42 | 1.57 | Reduced sharpness along linear structures |
-| **Pixel L1 Loss Only** | Charbonnier L1 only | 32.83 | 0.8903 | 1.63 | 1.73 | Lacks high-frequency and spectral constraints |
-| **w/o Depthwise Conv FFN** | Full Loss + Linear FFN | 32.97 | 0.8936 | 1.51 | 1.67 | Removes localized convolutional inductive bias |
-| **w/o Continuous FiLM Scale Head** | Full Loss + Discrete Head | 33.30 | 0.9013 | 1.43 | 1.53 | Restricted to single fixed scaling factor |
----
-
-## Zero-Shot Cross-Sensor Generalization (Hero Evaluation)
-
-HAT-Light trained purely on Sentinel-2 spaceborne imagery generalizes zero-shot to authentic airborne **USGS National Agriculture Imagery Program (NAIP)** high-resolution multi-spectral imagery under the Wald protocol:
-
-![Zero-Shot Cross-Sensor Generalization on USGS NAIP](assets/fig4_cross_sensor_eval.png)
 
 ### Quantitative Performance on NAIP (2.5m Ground Truth Reference)
 
@@ -234,16 +219,30 @@ Training options:
 All benchmark experiments can be run directly on the curated 600-patch test dataset:
 
 ### 1. Evaluate HAT-Light Checkpoint
-```bash
+`ash
 python benchmarks/evaluate_curated_test.py
-```
-This evaluates `weights/best_model.pth` across all 600 curated test patches and reports overall PSNR, SSIM, SAM, and ERGAS, as well as per-band metrics (Red, Green, Blue, NIR).
+`
+This evaluates weights/best_model.pth across all 600 curated test patches and reports overall PSNR, SSIM, SAM, and ERGAS, as well as per-band metrics (Red, Green, Blue, NIR).
 
 ### 2. Compare Against Baseline Models
-```bash
+`ash
 python benchmarks/evaluate_all_models.py
-```
+`
 This runs comparative evaluations against Bicubic interpolation, RCAN, and SwinIR.
+
+### Component Ablation Results
+
+Ablation results on the test split when disabling individual loss components and architectural modules:
+
+| Configuration / Variant | Objective / Module | PSNR (dB) | SSIM | SAM (deg) | ERGAS | Effect / Impact |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **Full Proposed (HAT-Light)** | L1 + FFT + Grad + SAM + DW-FFN | **33.48** | **0.9048** | **1.37** | **1.45** | Full synergistic system |
+| **w/o Cosine SAM Loss** | L1 + FFT + Grad | 33.26 | 0.9006 | 1.56 | 1.56 | Increases spectral/chromatic distortion |
+| **w/o 2D FFT Spectral Loss** | L1 + Grad + SAM | 33.12 | 0.8970 | 1.45 | 1.61 | Loss of high-frequency periodic harmonics |
+| **w/o Spatial Gradient Loss** | L1 + FFT + SAM | 33.19 | 0.8987 | 1.42 | 1.57 | Reduced sharpness along linear structures |
+| **Pixel L1 Loss Only** | Charbonnier L1 only | 32.83 | 0.8903 | 1.63 | 1.73 | Lacks high-frequency and spectral constraints |
+| **w/o Depthwise Conv FFN** | Full Loss + Linear FFN | 32.97 | 0.8936 | 1.51 | 1.67 | Removes localized convolutional inductive bias |
+| **w/o Continuous FiLM Scale Head** | Full Loss + Discrete Head | 33.30 | 0.9013 | 1.43 | 1.53 | Restricted to single fixed scaling factor |
 
 ---
 
