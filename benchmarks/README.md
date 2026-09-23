@@ -47,9 +47,9 @@ Evaluates zero-shot generalization of the Sentinel-2-trained HAT-Light model on 
 
 Evaluated on 600 curated 4-band Sentinel-2 test patches at 4x super-resolution:
 
-| Model | Parameters | Latency (ms) | FPS | PSNR (dB) | SSIM | SAM (deg) | ERGAS |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| Bicubic | - | 0.8 | 1250 | 28.61 | 0.7912 | 2.54 | 3.42 |
-| RCAN (4-band) | 15.6M | 42.1 | 23.8 | 32.23 | 0.8874 | 1.62 | 2.18 |
-| SwinIR (4-band) | 11.9M | 36.4 | 27.5 | 32.74 | 0.8951 | 1.51 | 2.04 |
-| **HAT-Light** | **4.2M** | **12.7** | **78.7** | **33.48** | **0.9048** | **1.37** | **1.89** |
+| Model | Latency (ms) | FPS | PSNR (dB) | SSIM | SAM (deg) | ERGAS |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Bicubic | 0.8 | 1250 | 28.61 | 0.7912 | 2.54 | 3.42 |
+| RCAN (4-band) | 42.1 | 23.8 | 32.23 | 0.8874 | 1.62 | 2.18 |
+| SwinIR (4-band) | 36.4 | 27.5 | 32.74 | 0.8951 | 1.51 | 2.04 |
+| **HAT-Light** | **12.7** | **78.7** | **33.48** | **0.9048** | **1.37** | **1.89** |

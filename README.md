@@ -222,13 +222,13 @@ This runs comparative evaluations against Bicubic interpolation, RCAN, and SwinI
 
 Evaluated across the 600 held-out Sentinel-2 test patches (4 channels: B04 Red, B03 Green, B02 Blue, B08 NIR) at 4x super-resolution ($10\text{m} \to 2.5\text{m}$ GSD):
 
-| Model | Parameters | Latency (ms) | Overall PSNR (dB) | Red (B04) | Green (B03) | Blue (B02) | NIR (B08) | SSIM | SAM (deg) | ERGAS |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Bicubic** | - | 1.19 | 32.23 | 37.10 | 38.69 | 40.06 | 27.19 | 0.8673 | 1.68 | 1.76 |
-| **EDSR** | 1.52M | 3.42 | 32.75 | 37.10 | 38.73 | 40.06 | 27.85 | 0.8798 | 1.59 | 1.72 |
-| **RCAN** | 1.68M | 3.89 | 32.77 | 37.11 | 38.74 | 40.07 | 27.87 | 0.8801 | 1.59 | 1.71 |
-| **SwinIR-Light** | 0.92M | 6.49 | 32.73 | 37.10 | 38.73 | 40.06 | 27.83 | 0.8795 | 1.60 | 1.72 |
-| **HAT-Light (Ours)** | **5.09M** | **12.71** | **33.48** | **39.62** | **40.39** | **42.07** | **28.22** | **0.9048** | **1.37** | **1.45** |
+| Model | Latency (ms) | Overall PSNR (dB) | Red (B04) | Green (B03) | Blue (B02) | NIR (B08) | SSIM | SAM (deg) | ERGAS |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Bicubic** | 1.19 | 32.23 | 37.10 | 38.69 | 40.06 | 27.19 | 0.8673 | 1.68 | 1.76 |
+| **EDSR** | 3.42 | 32.75 | 37.10 | 38.73 | 40.06 | 27.85 | 0.8798 | 1.59 | 1.72 |
+| **RCAN** | 3.89 | 32.77 | 37.11 | 38.74 | 40.07 | 27.87 | 0.8801 | 1.59 | 1.71 |
+| **SwinIR-Light** | 6.49 | 32.73 | 37.10 | 38.73 | 40.06 | 27.83 | 0.8795 | 1.60 | 1.72 |
+| **HAT-Light (Ours)** | **12.71** | **33.48** | **39.62** | **40.39** | **42.07** | **28.22** | **0.9048** | **1.37** | **1.45** |
 
 ### Component Ablation Results
 
@@ -268,7 +268,6 @@ See [pipeline/README.md](pipeline/README.md) for detailed configuration options.
 
 The model weights are available in `weights/best_model.pth` (~58 MB):
 - **Input/Output Channels:** 4 (Red, Green, Blue, NIR)
-- **Parameters:** ~4.2M
 - **Training Resolution:** 128x128 HR patches
 - **Scale:** 4x
 

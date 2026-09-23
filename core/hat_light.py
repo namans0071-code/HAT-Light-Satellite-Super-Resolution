@@ -16,9 +16,7 @@ Key Architectural Specifications:
 - Reconstruction Head:
   - Sub-Pixel Convolution (PixelShuffle) / Continuous Coordinate Upsampling.
   - Global Bicubic Residual Learning: SR = Bicubic(LR, scale) + ModelResidual(LR, scale).
-  - Zero-residual initialization to guarantee immediate >= 32 dB baseline on step 0.
-- Parameter Count: ~1.2M - 1.6M parameters.
-- Strict NVIDIA CUDA GPU enforcement: No CPU fallback per project requirements.
+  - Strict NVIDIA CUDA GPU enforcement: No CPU fallback per project requirements.
 """
 
 import sys
@@ -401,7 +399,6 @@ class ContinuousReconstructionHead(nn.Module):
 class HATLightSR(nn.Module):
     """
     Lightweight Hybrid Attention Transformer for Satellite Super-Resolution (HAT-Light / HAT-Sat-Pro).
-    Upgraded High-Capacity Architecture: ~5.09M Parameters.
     6 RHAG Groups • 24 Attention Stages • 8 Attention Heads • Embedding Dim 96.
     Calibrated for 6GB VRAM GPUs (NVIDIA RTX 3050 Laptop).
     """
@@ -501,5 +498,3 @@ if __name__ == "__main__":
     print(f"Input: {dummy_x.shape} -> Output 4x: {dummy_out.shape}")
     dummy_out_25 = model(dummy_x, scale=2.5)
     print(f"Input: {dummy_x.shape} -> Output 2.5x: {dummy_out_25.shape}")
-    num_params = model.get_num_params()
-    print(f"HAT-Light Parameters: {num_params:,} ({num_params / 1e6:.3f}M)")
