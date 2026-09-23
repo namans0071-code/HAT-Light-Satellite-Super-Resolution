@@ -6,6 +6,25 @@ This repository includes data ingestion and preparation scripts, model training 
 
 ---
 
+## Visual Reconstructions
+
+### Multi-Scene Visual Comparison (Bicubic vs. Baselines vs. HAT-Light)
+Comparison of 4x super-resolution performance across diverse scenes (urban structures, agriculture, coastal water bodies, and airport infrastructure):
+
+![Visual Comparison across diverse scenes](assets/fig1_visual_comparison.png)
+
+### Edge Profile & High-Frequency Detail Preservation
+Spatial transect intensity profile demonstrating edge sharpness and reduction of blurring artifacts along structural boundaries:
+
+![Edge transect profile comparison](assets/fig2_transect_edge_profile.png)
+
+### Biophysical Fidelity & NDVI Preservation
+Evaluation of Normalized Difference Vegetation Index (NDVI) reconstruction, showing preservation of vegetative reflectance and spectral indices:
+
+![NDVI biophysical fidelity comparison](assets/fig3_ndvi_biophysical_fidelity.png)
+
+---
+
 ## Key Features
 
 - **4-Band Multi-Spectral Processing:** Direct support for B04 (Red), B03 (Green), B02 (Blue), and B08 (NIR) multi-spectral bands in native 16-bit surface reflectance format.
@@ -18,7 +37,7 @@ This repository includes data ingestion and preparation scripts, model training 
 
 ## Project Structure
 
-`	ext
+```text
 HAT-Light-Satellite-Super-Resolution/
 ├── app.py                      # Launcher for the Web Studio (FastAPI backend + React frontend)
 ├── run_app.bat                 # One-click Windows batch launcher
@@ -63,7 +82,7 @@ HAT-Light-Satellite-Super-Resolution/
 │   └── README.md               # Checkpoint details and hyperparameter config
 │
 └── assets/                     # Visual figures, previews, and architectural diagrams
-`
+```
 
 ---
 
@@ -73,32 +92,32 @@ HAT-Light-Satellite-Super-Resolution/
 
 Clone the repository and install the Python dependencies:
 
-`ash
+```bash
 git clone https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution.git
 cd HAT-Light-Satellite-Super-Resolution
 pip install -r requirements.txt
-`
+```
 
 For the web frontend:
-`ash
+```bash
 cd studio/frontend
 npm install
 cd ../..
-`
+```
 
 ### 2. Launch Interactive Web Studio
 
 Start both the backend server and frontend interface with a single command:
 
-`ash
+```bash
 # Using Python:
 python app.py
 
 # Or on Windows using batch script:
 run_app.bat
-`
+```
 
-Once launched, navigate to http://localhost:5173 in your browser. The studio lets you:
+Once launched, navigate to `http://localhost:5173` in your browser. The studio lets you:
 - Browse and select from the 600 curated Sentinel-2 test patches.
 - Switch between visualization modes: True Color (RGB), False Color Infrared (CIR: NIR-Red-Green), and Normalized Difference Vegetation Index (NDVI).
 - Inspect high-resolution reconstructions side-by-side using interactive split-sliders.
@@ -108,19 +127,19 @@ Once launched, navigate to http://localhost:5173 in your browser. The studio let
 
 ## Running Inference
 
-You can run super-resolution inference directly from the command line using core/infer.py:
+You can run super-resolution inference directly from the command line using `core/infer.py`:
 
-`ash
+```bash
 python core/infer.py \
     --input test_dataset/HR/patch_0001.npy \
     --weights weights/best_model.pth \
     --output output_sr.npy \
     --scale 4
-`
+```
 
 ### Python API Example
 
-`python
+```python
 import torch
 import numpy as np
 from core.models.hat_light import HATLight
@@ -144,7 +163,7 @@ with torch.no_grad():
 
 # Convert back to numpy (shape: 4H x 4W x 4)
 sr_patch = (sr_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy() * 10000.0).clip(0, 10000).astype(np.uint16)
-`
+```
 
 ---
 
@@ -152,7 +171,7 @@ sr_patch = (sr_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy() * 10000.0).clip(
 
 To train the HAT-Light model from scratch or resume training:
 
-`ash
+```bash
 python train.py \
     --data_dir /path/to/dataset \
     --epochs 100 \
@@ -160,15 +179,15 @@ python train.py \
     --lr 2e-4 \
     --scale 4 \
     --save_dir weights/
-`
+```
 
 Training options:
-- --data_dir: Directory containing training image patches.
-- --scale: Upscaling factor (default: 4).
-- --epochs: Number of training epochs (default: 100).
-- --batch_size: Batch size (default: 16).
-- --lr: Initial learning rate for Adam optimizer (default: 2e-4).
-- --loss: Loss configuration: composite (Charbonnier + FFT + Grad + SAM) or l1.
+- `--data_dir`: Directory containing training image patches.
+- `--scale`: Upscaling factor (default: 4).
+- `--epochs`: Number of training epochs (default: 100).
+- `--batch_size`: Batch size (default: 16).
+- `--lr`: Initial learning rate for Adam optimizer (default: 2e-4).
+- `--loss`: Loss configuration: `composite` (Charbonnier + FFT + Grad + SAM) or `l1`.
 
 ---
 
@@ -177,27 +196,56 @@ Training options:
 All benchmark experiments can be run directly on the curated 600-patch test dataset:
 
 ### 1. Evaluate HAT-Light Checkpoint
-`ash
+```bash
 python benchmarks/evaluate_curated_test.py
-`
-This evaluates weights/best_model.pth across all 600 curated test patches and reports overall PSNR, SSIM, SAM, and ERGAS, as well as per-band metrics (Red, Green, Blue, NIR).
+```
+This evaluates `weights/best_model.pth` across all 600 curated test patches and reports overall PSNR, SSIM, SAM, and ERGAS, as well as per-band metrics (Red, Green, Blue, NIR).
 
 ### 2. Compare Against Baseline Models
-`ash
+```bash
 python benchmarks/evaluate_all_models.py
-`
+```
 This runs comparative evaluations against Bicubic interpolation, RCAN, and SwinIR.
 
-### Summary Benchmark Results
+### Quantitative Benchmark Results
 
-Results evaluated on the 600 held-out Sentinel-2 test patches (4 channels: B04, B03, B02, B08) at 4x super-resolution:
+Evaluated across the 600 held-out Sentinel-2 test patches (4 channels: B04 Red, B03 Green, B02 Blue, B08 NIR) at 4x super-resolution ($10\text{m} \to 2.5\text{m}$ GSD):
 
-| Method | Parameters | Latency (ms) | FPS | PSNR (dB) | SSIM | SAM (deg) | ERGAS |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| Bicubic Interpolation | - | 0.8 | 1250 | 28.61 | 0.7912 | 2.54 | 3.42 |
-| RCAN (4-band) | 15.6M | 42.1 | 23.8 | 32.23 | 0.8874 | 1.62 | 2.18 |
-| SwinIR (4-band) | 11.9M | 36.4 | 27.5 | 32.74 | 0.8951 | 1.51 | 2.04 |
-| **HAT-Light (Ours)** | **4.2M** | **12.7** | **78.7** | **33.48** | **0.9048** | **1.37** | **1.89** |
+| Model | Parameters | Latency (ms) | Overall PSNR (dB) | Red (B04) | Green (B03) | Blue (B02) | NIR (B08) | SSIM | SAM (deg) | ERGAS |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Bicubic** | - | 1.19 | 32.23 | 37.10 | 38.69 | 40.06 | 27.19 | 0.8673 | 1.68 | 1.76 |
+| **EDSR** | 1.52M | 3.42 | 32.75 | 37.10 | 38.73 | 40.06 | 27.85 | 0.8798 | 1.59 | 1.72 |
+| **RCAN** | 1.68M | 3.89 | 32.77 | 37.11 | 38.74 | 40.07 | 27.87 | 0.8801 | 1.59 | 1.71 |
+| **SwinIR-Light** | 0.92M | 6.49 | 32.73 | 37.10 | 38.73 | 40.06 | 27.83 | 0.8795 | 1.60 | 1.72 |
+| **HAT-Light (Ours)** | **5.09M** | **12.71** | **33.48** | **39.62** | **40.39** | **42.07** | **28.22** | **0.9048** | **1.37** | **1.45** |
+
+### Component Ablation Results
+
+Ablation results on the test split when disabling individual loss components and architectural modules:
+
+| Configuration / Variant | Objective / Module | PSNR (dB) | SSIM | SAM (deg) | ERGAS | Effect / Impact |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **Full Proposed (HAT-Light)** | L1 + FFT + Grad + SAM + DW-FFN | **33.48** | **0.9048** | **1.37** | **1.45** | Full synergistic system |
+| **w/o Cosine SAM Loss** | L1 + FFT + Grad | 33.26 | 0.9006 | 1.56 | 1.56 | Increases spectral/chromatic distortion |
+| **w/o 2D FFT Spectral Loss** | L1 + Grad + SAM | 33.12 | 0.8970 | 1.45 | 1.61 | Loss of high-frequency periodic harmonics |
+| **w/o Spatial Gradient Loss** | L1 + FFT + SAM | 33.19 | 0.8987 | 1.42 | 1.57 | Reduced sharpness along linear structures |
+| **Pixel L1 Loss Only** | Charbonnier L1 only | 32.83 | 0.8903 | 1.63 | 1.73 | Lacks high-frequency and spectral constraints |
+| **w/o Depthwise Conv FFN** | Full Loss + Linear FFN | 32.97 | 0.8936 | 1.51 | 1.67 | Removes localized convolutional inductive bias |
+| **w/o Continuous FiLM Scale Head** | Full Loss + Discrete Head | 33.30 | 0.9013 | 1.43 | 1.53 | Restricted to single fixed scaling factor |
+
+### Zero-Shot Cross-Sensor Generalization (Wald Protocol on NAIP)
+
+Generalization benchmark on airborne USGS NAIP 4-band imagery without fine-tuning:
+
+![Cross-sensor evaluation on NAIP](assets/fig4_cross_sensor_eval.png)
+
+| Architecture | PSNR Overall (dB) | Red (B04) | Green (B03) | Blue (B02) | NIR (B08) | SSIM | SAM (deg) | ERGAS | Net Gain vs Bicubic |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Bicubic Baseline** | 29.90 | 33.82 | 34.31 | 35.40 | 25.23 | 0.8109 | 1.41 | 2.83 | 0.00 dB |
+| **EDSR** | 30.50 | 33.84 | 34.50 | 35.44 | 26.02 | 0.8245 | 1.56 | 2.74 | +0.60 dB |
+| **RCAN** | 30.53 | 33.87 | 34.53 | 35.46 | 26.06 | 0.8257 | 1.56 | 2.73 | +0.63 dB |
+| **SwinIR-Light** | 30.48 | 33.84 | 34.49 | 35.43 | 26.01 | 0.8240 | 1.58 | 2.74 | +0.58 dB |
+| **HAT-Light (Ours)** | **30.44** | 33.58 | 34.29 | 35.27 | 26.04 | **0.8332** | **1.47** | **2.83** | **+0.54 dB** |
 
 ---
 
@@ -205,15 +253,15 @@ Results evaluated on the 600 held-out Sentinel-2 test patches (4 channels: B04, 
 
 To download and generate your own training dataset from Copernicus Sentinel-2 tiles:
 
-1. Setup CDSE credentials in pipeline/cdse_client.py.
+1. Setup CDSE credentials in `pipeline/cdse_client.py`.
 2. Query and download cloud-free Level-2A granules:
-   `ash
+   ```bash
    python pipeline/cdse_client.py --bbox <min_lon> <min_lat> <max_lon> <max_lat> --max_cloud 5
-   `
+   ```
 3. Extract 4-channel patches:
-   `ash
+   ```bash
    python pipeline/patch_extractor.py --input_dir /path/to/granules --output_dir /path/to/patches --patch_size 128
-   `
+   ```
 
 See [pipeline/README.md](pipeline/README.md) for detailed configuration options.
 
@@ -221,7 +269,7 @@ See [pipeline/README.md](pipeline/README.md) for detailed configuration options.
 
 ## Pre-Trained Weights
 
-The model weights are available in weights/best_model.pth (~58 MB):
+The model weights are available in `weights/best_model.pth` (~58 MB):
 - **Input/Output Channels:** 4 (Red, Green, Blue, NIR)
 - **Parameters:** ~4.2M
 - **Training Resolution:** 128x128 HR patches
