@@ -10,6 +10,8 @@ venv/
 build/
 develop-eggs/
 dist/
+!studio/frontend/dist/
+!studio/frontend/dist/**
 downloads/
 eggs/
 .eggs/

@@ -49,14 +49,46 @@ def main():
         bufsize=1
     )
 
-    # Wait for server initialization
+    # Wait for server initialization with active health check
     print("[3/3] Initializing studio and loading neural network weights...")
-    time.sleep(3.5)
+    studio_url = "http://127.0.0.1:8000"
+    health_url = f"{studio_url}/api/health"
 
-    studio_url = "http://localhost:8000"
-    print(f"\n   Studio live at: {studio_url}")
-    print("Opening browser for interactive exploration...")
-    webbrowser.open(studio_url)
+    import urllib.request
+    server_ready = False
+    start_time = time.time()
+    max_wait = 45  # allow up to 45s for model weights to load
+
+    while time.time() - start_time < max_wait:
+        if server_process.poll() is not None:
+            # Server exited unexpectedly
+            out, _ = server_process.communicate()
+            print("\n" + "=" * 70)
+            print("ERROR: Inference Server failed to start! Output:")
+            print(out)
+            print("=" * 70)
+            return
+
+        try:
+            req = urllib.request.Request(health_url, headers={"User-Agent": "StudioLauncher"})
+            with urllib.request.urlopen(req, timeout=1.0) as resp:
+                if resp.status == 200:
+                    server_ready = True
+                    break
+        except Exception:
+            pass
+
+        print(".", end="", flush=True)
+        time.sleep(0.5)
+
+    print()
+    if server_ready:
+        print(f"\n   >>> Studio live and healthy at: {studio_url} <<<")
+        print("Opening browser for interactive exploration...")
+        webbrowser.open(studio_url)
+    else:
+        print(f"\n[Warning] Studio server took longer than expected to respond, opening {studio_url} anyway...")
+        webbrowser.open(studio_url)
 
     print("\nPress Ctrl+C to stop the studio.")
     try:

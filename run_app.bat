@@ -1,5 +1,6 @@
 @echo off
 title HAT-Light Satellite Super-Resolution Studio
+cd /d "%~dp0"
 echo ======================================================================
 echo   Launching HAT-Light Satellite Super-Resolution Studio
 echo ======================================================================

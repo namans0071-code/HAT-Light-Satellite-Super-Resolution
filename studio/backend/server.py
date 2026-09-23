@@ -227,13 +227,13 @@ def run_inference(req: InferRequest):
             test_hr / input_str,
             test_hr / f"{input_str}.npy",
             test_hr / f"patch_{input_str}.npy"
-        ]
+        ] if input_str else []
         for opt in options:
-            if opt.exists():
+            if opt.exists() and opt.is_file():
                 target_hr = opt
                 break
 
-    if target_hr is None or not target_hr.exists():
+    if target_hr is None or not (target_hr.exists() and target_hr.is_file()):
         all_patches = sorted(list((REPO_ROOT / "test_dataset" / "HR").glob("*.npy")))
         if all_patches:
             target_hr = all_patches[0]

@@ -3,7 +3,7 @@
  * Connects directly to the CPU-capable FastAPI backend.
  */
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = typeof window !== 'undefined' && window.location && window.location.origin ? window.location.origin : 'http://127.0.0.1:8000';
 
 export const inferenceService = {
   async checkHealth() {
