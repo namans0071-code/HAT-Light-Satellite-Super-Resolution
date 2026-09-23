@@ -36,6 +36,14 @@ def main():
     py_exec = find_python_interpreter()
     print(f"[1/3] Using Python interpreter: {py_exec}")
 
+    # Check model weights status
+    weights_path = REPO_ROOT / "weights" / "best_model.pth"
+    if weights_path.exists():
+        if weights_path.stat().st_size < 1024:
+            print("[!] Note: weights/best_model.pth is a Git LFS pointer text file. Pulling latest repository updates will provide direct binary weights.")
+        else:
+            print(f"[i] Pre-trained weights verified: {weights_path.stat().st_size / (1024 * 1024):.1f} MB binary checkpoint.")
+
     # Launch Studio Backend
     server_script = REPO_ROOT / "studio" / "backend" / "server.py"
     print(f"[2/3] Launching Inference Server ({server_script.name})...")

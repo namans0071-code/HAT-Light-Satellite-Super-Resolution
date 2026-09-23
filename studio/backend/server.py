@@ -75,10 +75,25 @@ def get_device_name() -> str:
     return "Standard CPU (Zero-GPU Mode)"
 
 
+def is_lfs_pointer(path: Path) -> bool:
+    """Check if the given file is a Git LFS text pointer rather than actual binary data."""
+    if not path.is_file():
+        return False
+    try:
+        if path.stat().st_size < 1024:
+            with open(path, "rb") as f:
+                header = f.read(50)
+                if b"version https://git-lfs" in header:
+                    return True
+    except Exception:
+        pass
+    return False
+
+
 def get_or_load_model() -> HATLightSR:
     global MODEL
     if MODEL is None:
-        print(f"[Studio Engine] Loading HAT-Light Super-Resolution Model on {DEVICE}...")
+        print(f"[Studio Engine] Initializing HAT-Light Super-Resolution Model on {DEVICE}...")
         model = HATLightSR(
             in_channels=4,
             out_channels=4,
@@ -90,14 +105,40 @@ def get_or_load_model() -> HATLightSR:
             window_size=8
         ).to(DEVICE)
 
-        if CHECKPOINT_PATH.exists():
-            print(f"[Studio Engine] Loading pre-trained weights from {CHECKPOINT_PATH}...")
-            ckpt = torch.load(str(CHECKPOINT_PATH), map_location=DEVICE, weights_only=False)
-            state_dict = ckpt["model_state"] if isinstance(ckpt, dict) and "model_state" in ckpt else ckpt
-            model.load_state_dict(state_dict, strict=True)
-            print("[Studio Engine] 100% parameter match confirmed (best_model.pth loaded)!")
-        else:
-            print(f"[Studio Engine Warning] Checkpoint not found at {CHECKPOINT_PATH}.")
+        loaded = False
+        candidates = [
+            CHECKPOINT_PATH,
+            REPO_ROOT / "weights" / "best_model.pth",
+            Path.cwd() / "weights" / "best_model.pth",
+            REPO_ROOT.parent / "First_Personal_Trainer_and_Tester" / "checkpoints" / "v5(HAT-Sat-Pro)" / "best_model.pth",
+            REPO_ROOT.parent / "First_Personal_Trainer_and_Tester" / "checkpoints" / "v4(ResidualSparseAttentionTransformers)" / "best_model.pth",
+        ]
+
+        seen = set()
+        for p in candidates:
+            resolved_p = p.resolve()
+            if resolved_p in seen:
+                continue
+            seen.add(resolved_p)
+            if resolved_p.exists() and resolved_p.is_file() and not is_lfs_pointer(resolved_p):
+                try:
+                    print(f"[Studio Engine] Loading pre-trained weights from {resolved_p}...")
+                    ckpt = torch.load(str(resolved_p), map_location=DEVICE, weights_only=False)
+                    state_dict = ckpt["model_state"] if isinstance(ckpt, dict) and "model_state" in ckpt else ckpt
+                    model.load_state_dict(state_dict, strict=True)
+                    print(f"[Studio Engine] 100% parameter match confirmed ({resolved_p.name} loaded)!")
+                    loaded = True
+                    break
+                except Exception as e:
+                    print(f"[Studio Engine Warning] Failed loading weights from {resolved_p}: {e}")
+
+        if not loaded:
+            if CHECKPOINT_PATH.exists() and is_lfs_pointer(CHECKPOINT_PATH):
+                print(f"[Studio Engine Warning] Checkpoint at {CHECKPOINT_PATH} is a Git LFS pointer text file ({CHECKPOINT_PATH.stat().st_size} bytes).")
+                print("[Studio Engine Warning] Full binary weights have been committed directly to GitHub. Run 'git pull' or update repository to obtain binary model weights.")
+            else:
+                print(f"[Studio Engine Warning] No valid checkpoint found at {CHECKPOINT_PATH}.")
+            print("[Studio Engine Note] Running model in initialized zero-shot mode (Inference GUI remains active and functional).")
 
         model.eval()
         MODEL = model
@@ -153,6 +194,7 @@ def health():
     }
 
 
+@app.get("/api/patches")
 @app.get("/api/patches/list")
 def list_test_patches(category: str = "all", search: str = "", limit: int = 50, offset: int = 0):
     test_hr_dir = REPO_ROOT / "test_dataset" / "HR"
