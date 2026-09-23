@@ -292,7 +292,14 @@ If you use this codebase, the model architecture, the curated benchmark dataset,
 
 ---
 
-## License
+## License & Attribution
 
 - **Codebase:** Licensed under the [MIT License](LICENSE).
 - **Curated Dataset & Pre-trained Weights:** Licensed under the Creative Commons Attribution 4.0 International License ([CC-BY 4.0](LICENSE)).
+
+### Attribution Requirement
+Anyone using, adapting, or building upon this codebase, model architecture, pre-trained weights, or benchmark dataset in academic, research, or commercial work must cite the research paper and provide explicit attribution crediting **Naman S** and linking back to this repository:
+```text
+HAT-Light Satellite Super-Resolution by Naman S:
+https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution
+```

@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 Naman Sharma
+Copyright (c) 2026 Naman S (Naman Sharma)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -9,8 +9,9 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+The above copyright notice, this permission notice, and explicit attribution
+crediting Naman S and this repository (https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution)
+shall be included in all copies, substantial portions, or derivative works of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -22,6 +23,7 @@ SOFTWARE.
 
 ---
 
-### Dataset & Model Weights License
+### Attribution Requirement & Dataset / Weights License
 
-The curated evaluation dataset (`test_dataset/`) and pre-trained model weights (`weights/`) in this repository are licensed under the Creative Commons Attribution 4.0 International License (CC-BY 4.0). You are free to share and adapt these materials for any purpose, provided appropriate credit is given to the author and the accompanying research publication.
+- **Attribution & Credit Requirement:** Anyone using, modifying, benchmarking against, or building upon this code, architecture, or project must give explicit credit to **Naman S** and link to this repository (`https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution`) in their work, paper, codebase, or project documentation.
+- **Dataset & Model Weights License:** The curated evaluation dataset (`test_dataset/`) and pre-trained model weights (`weights/`) in this repository are licensed under the Creative Commons Attribution 4.0 International License (CC-BY 4.0). Appropriate credit to **Naman S** and the accompanying research publication is required.
