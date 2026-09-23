@@ -8,7 +8,6 @@ This directory contains pre-trained checkpoints for the HAT-Light super-resoluti
 
 ### `best_model.pth`
 - **Model:** HAT-Light
-- **Size:** ~58.4 MB
 - **Input Channels:** 4 (B04 Red, B03 Green, B02 Blue, B08 NIR)
 - **Output Channels:** 4
 - **Scale:** 4x (10m to 2.5m GSD)

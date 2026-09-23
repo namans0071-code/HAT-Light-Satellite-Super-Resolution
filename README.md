@@ -266,7 +266,7 @@ See [pipeline/README.md](pipeline/README.md) for detailed configuration options.
 
 ## Pre-Trained Weights
 
-The model weights are available in `weights/best_model.pth` (~58 MB):
+The model weights are available in `weights/best_model.pth`:
 - **Input/Output Channels:** 4 (Red, Green, Blue, NIR)
 - **Training Resolution:** 128x128 HR patches
 - **Scale:** 4x
