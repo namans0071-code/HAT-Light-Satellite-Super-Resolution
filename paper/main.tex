@@ -1,0 +1,212 @@
+\documentclass[letterpaper,journal,twoside]{IEEEtran}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{array}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\def\UrlBreaks{\do\/\do\-\do\.\do\_}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{balance}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=black]{hyperref}
+
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+
+\begin{document}
+
+\title{Hybrid Attention Transformers for Multi-Spectral Satellite Super-Resolution: Bridging Spatial Resolution and Radiometric Fidelity}
+
+\author{Naman Sharma%
+\thanks{N. Sharma is with the Department of Computer Science and Engineering, JECRC University, Jaipur 302019, India (e-mail: \mbox{\href{mailto:naman.25bcon0264@jecrcu.edu.in}{naman.25bcon0264@jecrcu.edu.in}}).}%
+\thanks{Complete source code, model weights, and benchmark suites: \url{https://github.com/namans0071-code/HAT-Light-Satellite-Super-Resolution}.}%
+}
+
+\markboth{IEEE Geoscience and Remote Sensing Letters,~Vol.~XX, No.~X, 2026}%
+{N. Sharma: Hybrid Attention Transformers for Multi-Spectral Satellite Super-Resolution}
+
+\maketitle
+
+\begin{abstract}
+Spaceborne optical imaging missions, such as the European Space Agency's Copernicus Sentinel-2 constellation, provide vital multi-spectral observations worldwide, yet optical aperture diffraction limits native Ground Sampling Distance (GSD) to 10\,m across visible and near-infrared (VNIR) bands. Traditional Single-Image Super-Resolution (SISR) algorithms designed for 8-bit photographic imagery introduce severe radiometric distortions that corrupt downstream biophysical canopy analyses. In this letter, we present \textbf{HAT-Light}, an edge-efficient continuous-scale Hybrid Attention Transformer engineered specifically for 4-channel (RGB+NIR), 16-bit Bottom-Of-Atmosphere (BOA) surface reflectance imagery. HAT-Light addresses the limitations of standard self-attention by integrating non-overlapping Window Multi-Head Self-Attention with Depthwise Convolutional Feed-Forward Networks (DW-FFN), effectively recovering translation-equivariant localized inductive biases essential for resolving fine agricultural field parcel boundaries and airport runway geometries. Arbitrary continuous magnification ($s \in [2.0, 4.0]$) is enabled through harmonic sinusoidal Feature-wise Linear Modulation (FiLM) within a single checkpoint. Furthermore, we enforce physical radiance conservation through a composite multi-task loss suite that unites Smooth Charbonnier regression, 2D real Fourier transform (rFFT2) spectral alignment, directional Sobel edge penalties, and a numerically bounded Convex Cosine Spectral Angle Mapper (SAM) loss ensuring FP16 numerical stability. Evaluated across 600 curated Sentinel-2 test patches spanning five distinct biomes, HAT-Light establishes state-of-the-art accuracy (\textbf{33.48\,dB PSNR}, \textbf{0.9048 SSIM}, \textbf{1.37$^\circ$ SAM}, and \textbf{1.89 ERGAS}), outperforming Bicubic (+1.25\,dB) and RCAN (+0.71\,dB). Spatial edge transect profiling and agricultural NDVI correlation ($R^2 = 0.898$) confirm robust biophysical conservation. Under the Wald synthesis protocol on 100 authentic 2.5\,m USGS NAIP aerial patches, HAT-Light achieves superior zero-shot transfer (\textbf{0.8332 SSIM}) at real-time edge throughput (\textbf{78.7\,FPS}) on an edge GPU.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Biophysical fidelity, continuous super-resolution, multi-spectral radiometry, Sentinel-2 MSI, vision transformers, zero-shot generalization.
+\end{IEEEkeywords}
+
+\section{Introduction}
+\IEEEPARstart{Q}{uantitative} optical Earth observation from spaceborne platforms serves as the foundational backbone for modern agricultural auditing, land-use classification, and disaster relief operations \cite{drusch2012sentinel}. The European Space Agency's (ESA) Copernicus Sentinel-2 Multi-Spectral Instrument (MSI) captures calibrated Bottom-Of-Atmosphere (BOA) surface reflectance across 13 spectral channels. However, spaceborne optical payloads are constrained by orbital altitude ($h \approx 786$\,km) and aperture diameters, bounded by diffraction:
+\begin{equation}
+\theta_{\text{diff}} \approx 1.22 \frac{\lambda}{D},
+\label{eq:diffraction}
+\end{equation}
+which bounds native Ground Sampling Distance (GSD) to 10\,m for Band 2 (Blue, 490\,nm), Band 3 (Green, 560\,nm), Band 4 (Red, 665\,nm), and Band 8 (NIR, 842\,nm). While Single-Image Super-Resolution (SISR) provides a computational approach to enhance spatial resolution from 10\,m to 2.5\,m ($4\times$), applying deep models to remote sensing reveals three fundamental domain challenges:
+
+\begin{enumerate}[leftmargin=*,itemsep=1.0pt,topsep=1.2pt,parsep=0pt]
+    \item \textit{The Radiometric Preservation Imperative}: Satellite super-resolution must quantitatively preserve 16-bit radiance ratios. Across vegetative canopies, reflectance jumps abruptly from strong chlorophyll absorption in Red (Band 4) to high mesophyll backscattering in NIR (Band 8). Standard RGB models (e.g., EDSR \cite{lim2017enhanced}, RCAN \cite{zhang2018rcan}) distort this ratio, degrading downstream vegetation metrics like NDVI \cite{rouse1974monitoring}.
+    \item \textit{The Ground-Truth Paradox}: Real sub-meter paired optical satellite observations cannot be acquired simultaneously from orbit, requiring surrogate decimation training ($\mathbf{X} = (\mathbf{Y} \circledast \mathbf{k}_{\text{PSF}})\downarrow_s + \mathbf{n}$) with realistic sensor Point Spread Functions (PSF) \cite{lanaras2018super}.
+    \item \textit{Cross-Sensor Generalization Deficit}: Neural networks often overfit to synthetic decimation kernels, degrading when transferred zero-shot to independent airborne or spaceborne sensors with divergent optical modulation transfer functions.
+\end{enumerate}
+
+To address these domain challenges, we present \textbf{HAT-Light}, an edge-efficient continuous-scale Hybrid Attention Transformer. Our primary contributions are:
+\begin{itemize}[leftmargin=*,itemsep=0.8pt,topsep=1.0pt,parsep=0pt]
+    \item \textbf{Radiometric Hybrid Transformer Architecture}: Couples Shifted-Window Multi-Head Self-Attention with Depthwise Convolutional FFNs (DW-FFN), recovering translation-equivariant spatial inductive biases for resolving sharp agricultural parcels and runways.
+    \item \textbf{Continuous Scale Space Manifold}: Employs harmonic sinusoidal FiLM modulation \cite{perez2018film,chen2021learning} to support continuous zoom ($s \in [2.0, 4.0]$) in a unified checkpoint with negligible computational overhead.
+    \item \textbf{Composite Radiometric Physical Loss Suite}: Formulates a multi-task objective combining Smooth Charbonnier regression, 2D rFFT spectral conservation, Sobel spatial gradients, and a non-singular Convex Cosine SAM loss \cite{kruse1993spectral} preventing gradient overflow in half precision.
+    \item \textbf{Exhaustive Empirical Validation}: Evaluated across 600 Sentinel-2 patches, 1D edge transects, NDVI scatter fidelity, component ablations, and zero-shot transfer under the Wald protocol \cite{wald1997fusion} on authentic 2.5\,m USGS NAIP aerial imagery at 78.7\,FPS.
+\end{itemize}
+
+% Table 1: Declared at bottom of Page 1 -> Floats to top of Page 2
+\input{tables/tab1_comparative.tex}
+
+\section{Proposed HAT-Light Architecture}
+
+\subsection{Window Multi-Head Self-Attention with DW-FFN}
+Given an input LR tensor $\mathbf{X} \in \mathbb{R}^{B \times 4 \times H \times W}$ containing calibrated surface reflectances, shallow feature representation $H_0 \in \mathbb{R}^{B \times C \times H \times W}$ ($C=96$) is extracted via an initial $1 \times 1$ expansion followed by a $3 \times 3$ convolution:
+\begin{equation}
+H_0 = \text{Conv}_{3\times3}\big(\text{GELU}(\text{Conv}_{1\times1}(\mathbf{X}))\big).
+\label{eq:shallow}
+\end{equation}
+
+The deep feature extraction stage comprises $G = 6$ Residual Hybrid Attention Groups (RHAG), each containing $K = 4$ Hybrid Attention Blocks (HAB). Within each block, feature maps are partitioned into non-overlapping $M \times M$ spatial windows ($M = 8$). Standard Window Self-Attention (W-MSA) alternates with Shifted Window Attention (SW-MSA) using cyclic shifts $(\lfloor M/2 \rfloor, \lfloor M/2 \rfloor)$ to capture inter-window context \cite{liu2021swin}:
+\begin{equation}
+\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{QK^T}{\sqrt{d_k}} + B + \mathcal{M}\right)V,
+\label{eq:attention}
+\end{equation}
+where $B \in \mathbb{R}^{M^2 \times M^2}$ is a learnable relative position bias matrix, and $\mathcal{M}$ denotes shifted boundary masking. Partitioning bounds attention complexity to $\mathcal{O}(4HWC^2 + 2M^2HWC)$, ensuring linear execution scaling with spatial image area.
+
+To reintroduce translation-equivariant localized inductive biases discarded by window self-attention, we couple the attention mechanism with a Depthwise Convolutional Feed-Forward Network:
+\begin{equation}
+\text{DW-FFN}(Z) = W_2 \cdot \text{GELU}\Big(\text{DW-Conv}_{3\times3}(W_1 Z + b_1)\Big) + b_2,
+\label{eq:dwffn}
+\end{equation}
+where $\text{DW-Conv}_{3\times3}$ filters independently per channel, preserving sharp linear structures such as runways, roads, and parcel boundaries.
+
+\subsection{Continuous Magnification via Harmonic FiLM}
+Rather than binding weights to fixed integer scales, HAT-Light accepts arbitrary continuous zoom factors $s \in [2.0, 4.0]$. The scalar $s$ is projected onto harmonic sinusoidal positional embeddings:
+\begin{equation}
+\mathbf{e}(s) = \left[ \sin\left(\frac{s}{10^{2k/D}}\right), \cos\left(\frac{s}{10^{2k/D}}\right) \right]_{k=0}^{D/2-1},
+\label{eq:harmonic}
+\end{equation}
+which generate affine modulation parameters $[\gamma(s), \beta(s)]$ via Feature-wise Linear Modulation (FiLM) \cite{perez2018film}:
+\begin{equation}
+\text{FiLM}(Z; s) = \gamma(s) \odot Z + \beta(s),
+\label{eq:film}
+\end{equation}
+enabling continuous arbitrary scaling in a single unified model checkpoint without architectural bloat.
+
+\subsection{Zero-Residual Initialization Guarantee}
+The reconstructed image $\hat{\mathbf{Y}}$ combines global bicubic interpolation with learned high-frequency optical residuals:
+\begin{equation}
+\hat{\mathbf{Y}} = \mathcal{I}_{\text{Bicubic}}(\mathbf{X}, s) + \mathcal{F}_\Theta(\mathbf{X}, s).
+\label{eq:zero_residual}
+\end{equation}
+Initializing the final reconstruction projection to zero ($W_{\text{tail}} = \mathbf{0}, b_{\text{tail}} = \mathbf{0}$) anchors initial learning strictly to the bicubic baseline, dedicating early optimization phases to residual high-frequency deconvolution.
+
+\subsection{Composite Radiometric Loss Suite}
+To preserve absolute radiometry and penalize edge attenuation, we optimize:
+\begin{equation}
+\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{Charbonnier}} + 0.10 \mathcal{L}_{\text{FFT}} + 0.05 \mathcal{L}_{\text{grad}} + 0.02 \mathcal{L}_{\text{SAM}},
+\label{eq:total_loss}
+\end{equation}
+where weights $(0.10, 0.05, 0.02)$ balance backpropagated gradient scales across terms via validation grid search:
+\begin{itemize}[leftmargin=*,itemsep=0.8pt,topsep=1.0pt,parsep=0pt]
+    \item \textbf{Smooth Charbonnier Loss} \cite{charbonnier1997deterministic}: Provides linear asymptotic gradients robust to specularities ($\epsilon = 10^{-3}$):
+    \begin{equation}
+    \mathcal{L}_{\text{Charbonnier}} = \frac{1}{N} \sum_{i=1}^N \sqrt{(\hat{y}_i - y_i)^2 + \epsilon^2},
+    \label{eq:charbonnier}
+    \end{equation}
+    \item \textbf{2D Real Fourier Transform (rFFT2) Spectral Loss} \cite{jiang2021focal}: Aligns spectral frequency amplitudes to recover periodic textures:
+    \begin{equation}
+    \mathcal{L}_{\text{FFT}} = \frac{1}{4N} \sum_{c=1}^4 \left\| \, |\mathcal{F}_{2D}(\hat{\mathbf{Y}}_c)| - |\mathcal{F}_{2D}(\mathbf{Y}_c)| \, \right\|_1,
+    \label{eq:fft_loss}
+    \end{equation}
+    \item \textbf{Directional Spatial Gradient Loss}: Sobel finite-difference operators penalizing edge blur along structural lineaments:
+    \begin{equation}
+    \mathcal{L}_{\text{grad}} = \frac{1}{4N} \sum_{c=1}^4 \sum_{d \in \{x, y\}} \|\mathbf{S}_d * (\hat{\mathbf{Y}}_c - \mathbf{Y}_c)\|_1,
+    \label{eq:grad_loss}
+    \end{equation}
+    \item \textbf{Convex Cosine SAM Loss}: Conventional SAM computes $\arccos(\mathbf{u} \cdot \mathbf{v})$ \cite{kruse1993spectral}, whose derivative diverges as $\cos(\theta) \to 1$. We formulate a stable convex surrogate:
+    \begin{equation}
+    \mathcal{L}_{\text{SAM}} = 1 - \frac{1}{HW} \sum_{p=1}^{HW} \frac{\sum_{c=1}^4 \hat{y}_{c, p} y_{c, p}}{\|\hat{\mathbf{y}}_p\|_2 \|\mathbf{y}_p\|_2 + \epsilon_{\text{stab}}},
+    \label{eq:sam_loss}
+    \end{equation}
+    which bounds gradients within $[-1, 1]$, eliminating FP16 gradient overflow.
+\end{itemize}
+
+% Figure 1 (Full-width, 4 rows x 7 cols): Declared on Page 2 -> Floats to top of Page 3
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig1_cross_sensor.png}
+\caption{Zero-shot cross-sensor generalization evaluation under the Wald protocol across four representative operational categories (LAX Airport Terminal, Downtown LA Urban Grid, MCAS Miramar Airbase Runway, and San Joaquin Crop Canopies). Native reference is authentic $2.5\,\text{m}$ USGS NAIP 4-channel imagery degraded to $10\,\text{m}$ LR via synthetic PSF decimation. Insets highlight recovered infrastructure lineaments, runway thresholds, urban blocks, and vegetative canopy fidelity with quantitatively superior PSNR/SSIM metrics.}
+\label{fig:cross_sensor}
+\end{figure*}
+
+\section{Experimental Benchmark and Performance}
+
+\subsection{Curated Multi-Spectral Test Distribution and Setup}
+Evaluation uses \textbf{600 curated Sentinel-2 patches} ($128 \times 128 \times 4$, 16-bit BOA surface reflectance, $DN / 10\,000$) from ESA Copernicus Data Space Ecosystem (CDSE) across cloud-free tiles ($<5\%$ cloud cover): airports (115), urban grids (123), military installations (182), agriculture (109), and mountains (59). Implemented in PyTorch 2.5.1, models were trained with AdamW ($\beta_1=0.9, \beta_2=0.999$, weight decay $10^{-4}$), initial learning rate $2 \times 10^{-4}$ with cosine decay to $10^{-6}$, seed 42, and FP16 mixed precision on an NVIDIA GPU.
+
+\subsection{Quantitative Performance Comparison}
+We benchmark HAT-Light against bicubic interpolation and deep super-resolution baselines: EDSR \cite{lim2017enhanced}, RCAN \cite{zhang2018rcan}, and SwinIR-Light \cite{liang2021swinir}, retrained under identical multi-spectral setups (Table~\ref{tab:comparative_results}).
+
+As documented in Table~\ref{tab:comparative_results}, HAT-Light attains state-of-the-art reconstruction fidelity: \textbf{33.48\,dB PSNR} (+1.25\,dB over Bicubic, +0.71\,dB over RCAN) and \textbf{0.9048 SSIM} (+0.0375 over Bicubic). Spectral Angle Mapper (SAM) distortion is suppressed to \textbf{1.37$^\circ$} (vs.\ 1.68$^\circ$ Bicubic), while ERGAS drops to \textbf{1.89} (vs.\ 2.18), confirming that the loss suite enforces global spectral and radiometric fidelity across all 16-bit reflectance bands.
+
+Multi-spectral analysis reveals Band 4 (Red) reaches \textbf{39.62\,dB} (+2.52\,dB over Bicubic), while Band 8 (NIR) reaches \textbf{28.22\,dB} (+1.68\,dB), resolving steep vegetative contrast and preventing chromatic blurring along parcel boundaries.
+
+Across scene categories, HAT-Light maintains consistency: runways (34.12\,dB), urban grids (32.85\,dB), military bases (33.91\,dB), agricultural crops (33.74\,dB), and mountainous relief (32.48\,dB). On edge hardware (RTX 3050, FP16), HAT-Light achieves \textbf{12.7\,ms} (\textbf{78.7\,FPS}) with peak VRAM below 2.1\,GB.
+
+% Figure 2 (Full-width 1D Transect): Declared on Page 3 -> Floats to top of Page 4
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig2_transect_edge_profile.pdf}
+\caption{1D surface reflectance transect across a high-contrast boundary on a patch of land ($A \to B$) on high-resolution Sentinel-2 scenes. Left: Native optical patch of land with transect trajectory $A \to B$ traversing a distinct terrain transition. Right: 1D normalized surface reflectance profile (Band 4 Red) demonstrating steep edge recovery without ringing.}
+\label{fig:transect}
+\end{figure*}
+
+\section{Cross-Sensor Generalization Under the Wald Protocol}
+To evaluate out-of-domain transfer without fine-tuning, we benchmark under the Wald synthesis protocol \cite{wald1997fusion} using 100 4-channel patches from airborne USGS NAIP aerial photography (0.6\,m native GSD antialiased to authentic 2.5\,m resolution). As visualized in Fig.~\ref{fig:cross_sensor}, qualitative recoveries across four operational biomes demonstrate sharp lineament reconstruction. Quantitative cross-sensor evaluations are reported in Table~\ref{tab:cross_sensor_results}.
+
+\input{tables/tab3_cross_sensor.tex}
+
+As documented in Table~\ref{tab:cross_sensor_results}, HAT-Light exhibits robust zero-shot transfer capability, achieving the highest structural similarity (0.8332 SSIM) and a net +0.54\,dB PSNR gain over bicubic interpolation, outperforming EDSR (0.8245) and RCAN (0.8257). Crucially, the model restricts spectral angular drift to 1.47$^{\circ}$ SAM (compared to 1.56$^{\circ}$ for RCAN), verifying that the Convex Cosine SAM loss prevents chromatic aberration across uncalibrated airborne sensors. High-frequency structural lineaments—including airport runway thresholds, taxiway markings, and dock edges—recover with high contrast and without ringing artifacts, substantiating the cross-sensor robustness of our hybrid attention mechanism.
+
+Standard deep residual baselines degrade primarily due to over-reliance on synthetic decimation kernels, introducing chromatic fringing when exposed to uncalibrated airborne optics. By contrast, HAT-Light decouples spatial deconvolution from spectral calibration via harmonic FiLM conditioning and shifted-window attention, preserving sharp structural lineaments across divergent sensor geometries without requiring parameter fine-tuning.
+
+\section{Physical Radiometric and Biophysical Validation}
+
+\subsection{Spatial Edge Transect Profiling}
+To evaluate spatial high-frequency response, Fig.~\ref{fig:transect} benchmarks a 1D reflectance transect across a high-contrast boundary on a patch of land ($A \to B$). Bicubic interpolation smears the step boundary across 8+ pixels due to low-pass attenuation. In contrast, HAT-Light reproduces the sharp step profile of native high-resolution ground truth without overshoot or ringing artifacts, sharpening the edge spread function (ESF) transition width from 5.8 down to 2.1 pixels and validating the contribution of directional Sobel gradient penalties.
+
+% Figure 3 (Full-width NDVI Scatter): Declared on Page 4 -> Floats to top of Page 5
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/fig3_ndvi_biophysical_fidelity.pdf}
+\caption{Biophysical vegetation index (NDVI) correlation across 3,500 agricultural pixels. Left: Bicubic baseline scatter correlation ($R^2 = 0.835$, $\text{MAE} = 0.059$). Right: HAT-Light proposed correlation ($R^2 = 0.898$, $\text{MAE} = 0.047$), demonstrating superior preservation of non-linear multi-spectral band ratios.}
+\label{fig:ndvi}
+\end{figure*}
+
+\subsection{Biophysical Index Fidelity (NDVI)}
+Preserving quantitative multi-spectral ratios is essential for agricultural Earth observation. Fig.~\ref{fig:ndvi} benchmarks Normalized Difference Vegetation Index ($\text{NDVI} = (\rho_{\text{NIR}} - \rho_{\text{Red}})/(\rho_{\text{NIR}} + \rho_{\text{Red}})$) \cite{rouse1974monitoring} across 3,500 agricultural pixels. HAT-Light achieves an exceptional coefficient of determination $R^2 = 0.898$ ($\text{MAE} = 0.0468$), outperforming Bicubic ($R^2 = 0.835$, $\text{MAE} = 0.0592$). This verifies that the composite radiometric loss suite conserves non-linear band interactions across vegetative canopies without introducing spectral bias.
+
+\section{Systematic Component Ablation Study}
+Table~\ref{tab:ablation_results} reports controlled ablation experiments on the Sentinel-2 test split:
+
+\input{tables/tab2_ablation.tex}
+
+As documented in Table~\ref{tab:ablation_results}, removing $\mathcal{L}_{\text{SAM}}$ degrades spectral alignment ($1.37^\circ \to 1.56^\circ$). Omitting $\mathcal{L}_{\text{FFT}}$ drops PSNR by 0.36\,dB on periodic textures, while removing $\mathcal{L}_{\text{grad}}$ softens high-contrast edge boundaries (-0.29\,dB). Replacing the DW-FFN module with a standard linear MLP incurs the largest overall degradation (-0.51\,dB PSNR, -0.0112 SSIM), confirming the indispensable necessity of localized depthwise convolutional inductive biases.
+
+\section{Discussion and Operational Considerations}
+Sustaining \textbf{78.7\,FPS} with $<2.1$\,GB VRAM, HAT-Light seamlessly integrates into Copernicus Level-2A pipelines or tactical edge processors (NVIDIA Jetson). Operationally, inputs require clear-sky L2A reflectance, relying on upstream Scene Classification Layer (SCL) masks to exclude clouds. While continuous magnification operates reliably within $s \in [2.0, 4.0]$, scaling beyond $4.5\times$ remains ill-posed without auxiliary panchromatic guidance. FiLM conditioning unifies arbitrary scales into a single checkpoint.
+
+\section{Conclusion}
+We presented HAT-Light, an edge-efficient Hybrid Attention Transformer for continuous-scale multi-spectral satellite super-resolution. By coupling shifted-window attention with DW-FFN, harmonic FiLM scaling, and a physics-informed radiometric loss suite, HAT-Light sets state-of-the-art accuracy (+1.25\,dB PSNR, 0.9048 SSIM, 1.37$^\circ$ SAM) with robust zero-shot aerial transfer (0.8332 SSIM) at 78.7\,FPS. Future work focuses on INT8 quantization for onboard FPGA/ASIC deployment and extending scaling to all 12 Sentinel-2 bands.
+
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

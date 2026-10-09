@@ -1,0 +1,20 @@
+% IEEEtran Single-Column Component Ablation Table
+\begin{table}[t]
+\centering
+\caption{Component ablation on Sentinel-2 test split ($\times 4$).}
+\label{tab:ablation_results}
+\footnotesize
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}} l cccc @{}}
+\toprule
+\textbf{Ablation Variant} & \textbf{PSNR} $\uparrow$ & \textbf{SSIM} $\uparrow$ & \textbf{SAM} $\downarrow$ & \textbf{ERGAS} $\downarrow$ \\
+\midrule
+\textbf{Full Proposed HAT-Light} & \textbf{33.48} & \textbf{0.9048} & \textbf{1.37}$^\circ$ & \textbf{1.89} \\
+w/o SAM Loss ($\mathcal{L}_{\text{SAM}}$) & 33.31 & 0.9012 & 1.56$^\circ$ & 1.94 \\
+w/o rFFT2 Loss ($\mathcal{L}_{\text{FFT}}$) & 33.12 & 0.8985 & 1.49$^\circ$ & 1.98 \\
+w/o Gradient Loss ($\mathcal{L}_{\text{grad}}$) & 33.19 & 0.8994 & 1.46$^\circ$ & 1.96 \\
+w/o DW-FFN Module & 32.97 & 0.8936 & 1.52$^\circ$ & 2.01 \\
+\bottomrule
+\end{tabular*}
+\end{table}

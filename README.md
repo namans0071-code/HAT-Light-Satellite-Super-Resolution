@@ -6,7 +6,7 @@ PyTorch implementation of **HAT-Light** (Hybrid Attention Transformer for Satell
 
 ## Zero-Shot Cross-Sensor Generalization (Hero Evaluation)
 
-HAT-Light trained purely on Sentinel-2 spaceborne imagery generalizes zero-shot to authentic airborne **USGS National Agriculture Imagery Program (NAIP)** high-resolution multi-spectral imagery under the Wald protocol:
+HAT-Light trained purely on Sentinel-2 spaceborne imagery generalizes zero-shot to authentic airborne **USGS National Agriculture Imagery Program (NAIP)** high-resolution multi-spectral imagery under the Wald protocol across four operational categories (LAX Airport Terminal, Downtown LA Urban Grid, MCAS Miramar Airbase Runway, and San Joaquin Crop Canopies):
 
 ![Zero-Shot Cross-Sensor Generalization on USGS NAIP](assets/fig4_cross_sensor_eval.png)
 
@@ -37,12 +37,12 @@ Evaluated across the 600 held-out Sentinel-2 test patches (4 channels: B04 Red, 
 ## Visual Reconstructions on Sentinel-2
 
 ### Edge Profile & High-Frequency Detail Preservation
-Spatial transect intensity profile demonstrating edge sharpness and reduction of blurring artifacts along structural boundaries:
+1D surface reflectance transect profile across a high-contrast boundary on a patch of land ($A \to B$) demonstrating steep edge recovery without ringing or overshoot:
 
 ![Edge transect profile comparison](assets/fig2_transect_edge_profile.png)
 
 ### Biophysical Fidelity & NDVI Preservation
-Evaluation of Normalized Difference Vegetation Index (NDVI) reconstruction, showing preservation of vegetative reflectance and spectral indices:
+Evaluation of Normalized Difference Vegetation Index (NDVI) correlation across 3,500 agricultural pixels ($R^2 = 0.898$, $\text{MAE} = 0.047$ vs. Bicubic $R^2 = 0.835$, $\text{MAE} = 0.059$):
 
 ![NDVI biophysical fidelity comparison](assets/fig3_ndvi_biophysical_fidelity.png)
 
@@ -281,11 +281,10 @@ If you use this codebase, the model architecture, the curated benchmark dataset,
 
 ```bibtex
 @article{sharma2026hatlight,
-  title={Continuous Multi-Spectral Satellite Super-Resolution via Hybrid Attention Transformers and Radiometric Physical Constraints},
+  title={Hybrid Attention Transformers for Multi-Spectral Satellite Super-Resolution: Bridging Spatial Resolution and Radiometric Fidelity},
   author={Sharma, Naman},
-  journal={engrXiv preprint},
-  year={2026},
-  doi={10.31224/xxxxx}
+  journal={IEEE Geoscience and Remote Sensing Letters (under review)},
+  year={2026}
 }
 ```
 

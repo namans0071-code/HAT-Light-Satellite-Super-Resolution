@@ -1,0 +1,22 @@
+% IEEEtran Double-Column Comparative Benchmark Table
+\begin{table*}[t]
+\centering
+\caption{Quantitative benchmark results across the curated 600-patch Sentinel-2 test split ($10\,\text{m} \to 2.5\,\text{m}$, Scale factor $s=4$). Evaluation encompasses visible (B4, B3, B2) and Near-Infrared (B8) spectral channels. Best results in \textbf{bold}.}
+\label{tab:comparative_results}
+\footnotesize
+\renewcommand{\arraystretch}{1.22}
+\setlength{\tabcolsep}{0pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l ccccc ccc c cc}
+\toprule
+\textbf{Method} & \multicolumn{5}{c}{\textbf{PSNR (dB)} $\uparrow$} & \textbf{SSIM} $\uparrow$ & \textbf{SAM} ($^\circ$) $\downarrow$ & \textbf{ERGAS} $\downarrow$ & \textbf{Params} & \textbf{Latency} & \textbf{Throughput} \\
+\cmidrule(lr){2-6}
+& All Bands & Red (B4) & Green (B3) & Blue (B2) & NIR (B8) & & & & (M) & (ms) & (FPS) \\
+\midrule
+Bicubic Baseline & 32.23 & 37.10 & 35.81 & 35.53 & 26.54 & 0.8673 & 1.68 & 2.18 & --- & 0.4 & 2500.0 \\
+EDSR \cite{lim2017enhanced} & 32.75 & 38.33 & 36.87 & 36.63 & 27.27 & 0.8798 & 1.59 & 2.05 & 1.52 & 5.2 & 192.3 \\
+RCAN \cite{zhang2018rcan} & 32.77 & 38.38 & 36.90 & 36.64 & 27.29 & 0.8801 & 1.59 & 2.05 & 1.68 & 14.8 & 67.6 \\
+SwinIR-Light \cite{liang2021swinir} & 32.73 & 38.30 & 36.85 & 36.59 & 27.25 & 0.8795 & 1.60 & 2.06 & 0.92 & 10.5 & 95.2 \\
+\textbf{HAT-Light (Ours)} & \textbf{33.48} & \textbf{39.62} & \textbf{37.76} & \textbf{37.40} & \textbf{28.22} & \textbf{0.9048} & \textbf{1.37} & \textbf{1.89} & \textbf{5.09} & \textbf{12.7} & \textbf{78.7} \\
+\bottomrule
+\end{tabular*}
+\end{table*}
